@@ -1,5 +1,5 @@
 // OpenAI API anahtarınızı buraya ekleyin
-const API_KEY = 'VOWwtHTASlQLGmyryLC6TylNuxHDseRyqkhFymJmU6lblTY2geB1xUTDgOR3jiFhzPe1BSzPdNT3BlbkFJRccwsCgw4uXoM939FIJtV95S-IoZNIc3WykSv2t8d56OnbHQF_qvEPhUsEAWHKmcUvdZCf0NoA';  // Buraya OpenAI API anahtarınızı yapıştırın
+const API_KEY = 'ZJUHMkqbzgLQWB0FgREO1zAORguqGeEbMU0B7-QwDHuMBqfRVVg1cG_RaExC_K60Y-lXZ9UAKeT3BlbkFJddG2Lm7uCaf_g18Lm82Gt2zEoG37PBTpBw8bF7j7heAtA5VP-RPM1GEuAawDRB4EhxuEq8mE4A';  // Buraya OpenAI API anahtarınızı yapıştırın
 
 // ChatGPT ile işlem analizi yapacak fonksiyon
 async function getTradeAnalysis(symbol) {
