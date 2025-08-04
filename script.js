@@ -11,7 +11,7 @@ async function getTradeAnalysis(symbol) {
         method: 'POST',  // POST isteği gönderiyoruz
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`,  // Authorization başlığında API anahtarını ekliyoruz
+            'Authorization': `Bearer ${API_KEY}`,  // API anahtarını Authorization başlığına ekliyoruz
         },
         body: JSON.stringify({
             model: 'text-davinci-003',  // Kullanılacak model (GPT-3.5)
@@ -25,11 +25,11 @@ async function getTradeAnalysis(symbol) {
     return data.choices[0].text.trim();  // Gelen yanıtı alıyoruz
 }
 
-// Kullanıcının girdiği sembole göre işlem analizi alacağız
+// Kullanıcının seçtiği sembole göre işlem analizi alacağız
 function getAnalysis() {
-    const symbol = document.getElementById("user-input").value;  // Kullanıcının girdiği sembol
+    const symbol = document.getElementById("symbol-select").value;  // Seçilen sembol
     if (!symbol) {
-        alert("Lütfen bir sembol girin!");  // Sembol girilmezse uyarı ver
+        alert("Lütfen bir sembol seçin!");  // Seçim yapılmazsa uyarı ver
         return;
     }
 
@@ -42,4 +42,4 @@ function getAnalysis() {
             document.getElementById("chat-box").innerHTML += `<p><strong>Hata:</strong> Analiz alınamadı.</p>`;
             console.error('API hatası:', error);  // Hata durumunda konsola yaz
         });
-} 
+}
