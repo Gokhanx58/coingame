@@ -1,5 +1,5 @@
-// API anahtarınızı buraya ekleyin
-const API_KEY = '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';  // Buraya OpenAI API anahtarınızı yapıştırın
+// OpenAI API anahtarınızı buraya ekleyin
+const API_KEY = 'VOWwtHTASlQLGmyryLC6TylNuxHDseRyqkhFymJmU6lblTY2geB1xUTDgOR3jiFhzPe1BSzPdNT3BlbkFJRccwsCgw4uXoM939FIJtV95S-IoZNIc3WykSv2t8d56OnbHQF_qvEPhUsEAWHKmcUvdZCf0NoA';  // Buraya OpenAI API anahtarınızı yapıştırın
 
 // ChatGPT ile işlem analizi yapacak fonksiyon
 async function getTradeAnalysis(symbol) {
@@ -11,7 +11,7 @@ async function getTradeAnalysis(symbol) {
         method: 'POST',  // POST isteği gönderiyoruz
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`,  // API anahtarını Authorization başlığına ekliyoruz
+            'Authorization': `Bearer ${API_KEY}`,  // Authorization başlığında API anahtarını ekliyoruz
         },
         body: JSON.stringify({
             model: 'text-davinci-003',  // Kullanılacak model (GPT-3.5)
@@ -25,11 +25,21 @@ async function getTradeAnalysis(symbol) {
     return data.choices[0].text.trim();  // Gelen yanıtı alıyoruz
 }
 
-// Bu fonksiyonu, widget’lardan işlem önerisi almak için tetikleyebilirsiniz
-document.getElementById("btc-widget").addEventListener('click', () => {
-    getTradeAnalysis("BTC/USDT")  // BTC/USDT sembolü için işlem analizi alıyoruz
+// Kullanıcının girdiği sembole göre işlem analizi alacağız
+function getAnalysis() {
+    const symbol = document.getElementById("user-input").value;  // Kullanıcının girdiği sembol
+    if (!symbol) {
+        alert("Lütfen bir sembol girin!");  // Sembol girilmezse uyarı ver
+        return;
+    }
+
+    // API'den işlem analizi alıyoruz ve chat-box'a ekliyoruz
+    getTradeAnalysis(symbol)
         .then(analysis => {
-            alert("BTC/USDT İşlem Analizi: " + analysis);  // İşlem analizini alert olarak gösteriyoruz
+            document.getElementById("chat-box").innerHTML += `<p><strong>Analiz:</strong> ${analysis}</p>`;  // Analiz kısmını chat-box'a ekle
         })
-        .catch(error => console.error('API hatası:', error));
-});
+        .catch(error => {
+            document.getElementById("chat-box").innerHTML += `<p><strong>Hata:</strong> Analiz alınamadı.</p>`;
+            console.error('API hatası:', error);  // Hata durumunda konsola yaz
+        });
+} 
