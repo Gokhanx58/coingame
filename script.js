@@ -1,7 +1,11 @@
 // OpenAI API anahtarınızı buraya ekleyin
-const API_KEY = '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;  // Buraya yeni OpenAI API anahtarınızı yapıştırın
+const API_KEY = 'VOWwtHTASlQLGmyryLC6TylNuxHDseRyqkhFymJmU6lblTY2geB1xUTDgOR3jiFhzPe1BSzPdNT3BlbkFJRccwsCgw4uXoM939FIJtV95S-IoZNIc3WykSv2t8d56OnbHQF_qvEPhUsEAWHKmcUvdZCf0NoA';  // Buraya OpenAI API anahtarınızı yapıştırın
 
-// ChatGPT ile işlem analizi yapacak fonksiyon
+// TradingView grafiği için sembol
+const symbol = "BTC/USDT";  // Örnek olarak BTC/USDT kullanıldı
+
+// TradingView widget'ı için sembol dinamik olarak değişebilir
+
 async function getTradeAnalysis(symbol) {
     const url = 'https://api.openai.com/v1/completions';  // OpenAI API endpoint
 
@@ -12,27 +16,24 @@ async function getTradeAnalysis(symbol) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`,  // API anahtarını Authorization başlığına ekliyoruz
+                'Authorization': `Bearer ${API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'text-davinci-003',  // Kullanılacak model (GPT-3.5)
-                prompt: prompt,  // Göndereceğimiz istek
-                max_tokens: 200,  // Yanıtın uzunluğu
-                temperature: 0.7,  // Yanıtın rastgeleliği (0.0 - 1.0 arasında değişir)
+                model: 'text-davinci-003',
+                prompt: prompt,
+                max_tokens: 200,
+                temperature: 0.7,
             }),
         });
 
-        // Eğer yanıt başarısızsa, hata mesajı verelim
         if (!response.ok) {
-            const errorMessage = await response.text();
-            console.error('API isteği hatası:', errorMessage);
             throw new Error(`API isteği başarısız: ${response.statusText}`);
         }
 
         const data = await response.json();
         return data.choices[0].text.trim();  // Gelen yanıtı alıyoruz
     } catch (error) {
-        console.error('API hatası:', error);  // Hata detayını konsola yazıyoruz
+        console.error('API hatası:', error);
         throw new Error('API hatası: Analiz alınamadı');
     }
 }
@@ -49,6 +50,10 @@ function getAnalysis() {
     getTradeAnalysis(symbol)
         .then(analysis => {
             document.getElementById("chat-box").innerHTML += `<p><strong>Analiz:</strong> ${analysis}</p>`;
+
+            // Grafik görselini eklemek
+            const imgUrl = `https://www.tradingview.com/chart/${symbol}/`;
+            document.getElementById("chat-box").innerHTML += `<img src="${imgUrl}" alt="${symbol} grafiği" width="600" height="400">`;
         })
         .catch(error => {
             document.getElementById("chat-box").innerHTML += `<p><strong>Hata:</strong> ${error.message}</p>`;
