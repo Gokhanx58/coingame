@@ -1,62 +1,81 @@
-/* Temel sayfa stili */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Arial', sans-serif;
+    background-color: #121826;
+    color: #ffffff;
     margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-/* Başlık stili */
-h1 {
-    color: #333;
-    margin-top: 20px;
-}
-
-/* Widgetların düzeni */
-div[id$="-widget"] {
-    margin: 20px auto;
-    height: 500px; /* Widget yüksekliği */
-    width: 90%;
-    max-width: 1200px;
-    background-color: #fff;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Chat bölümünün düzeni */
-#chat-container {
-    width: 80%;
-    margin: 20px auto;
     padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background-color: #fff;
+    line-height: 1.6;
 }
 
-#chat-box {
-    border: 1px solid #ddd;
-    height: 300px;
-    overflow-y: scroll;
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: #f4f4f4;
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #2a3e78;
 }
 
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
+.symbol-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
+.symbol-btn {
+    padding: 12px 18px;
+    background: #2a3e78;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
 }
 
-button:hover {
-    background-color: #45a049;
+.symbol-btn:hover {
+    background: #3a4e88;
+    transform: translateY(-2px);
+}
+
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.tradingview-widget-container {
+    height: 450px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.analysis-result {
+    background: #1e2130;
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border-left: 4px solid #2a3e78;
+}
+
+.analysis-result h3 {
+    color: #4a8eff;
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .symbol-buttons {
+        gap: 8px;
+    }
+    
+    .symbol-btn {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
 }
