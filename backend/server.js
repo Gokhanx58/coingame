@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 
 const app = express();
 const port = 3000;
@@ -9,28 +9,27 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const configuration = new Configuration({
-  apiKey: "OPENAI_API_KEYİNİ_BURAYA_YAZ", // ← BU KISMI KENDİ API KEY'İNLE DEĞİŞTİR
+// API KEYİNİ BURAYA YAZ!
+const openai = new OpenAI({
+  apiKey: "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", // ← OpenAI hesabından al
 });
-
-const openai = new OpenAIApi(configuration);
 
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
 
   try {
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+    const chatCompletion = await openai.chat.completions.create({
       messages: [{ role: "user", content: userMessage }],
+      model: "gpt-3.5-turbo",
     });
 
-    res.json({ reply: response.data.choices[0].message.content });
+    res.json({ reply: chatCompletion.choices[0].message.content });
   } catch (error) {
-    console.error("API Hatası:", error.message);
-    res.status(500).json({ reply: "Sunucu hatası. Lütfen tekrar deneyin." });
+    console.error("HATA:", error.message);
+    res.status(500).json({ reply: "Hata oluştu. Lütfen tekrar dene." });
   }
 });
 
 app.listen(port, () => {
-  console.log(`🟢 Sunucu çalışıyor: http://localhost:${port}`);
+  console.log(`🟢 Sunucu aktif: http://localhost:${port}`);
 });
