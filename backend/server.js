@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
-  apiKey: "AeQrf3-O7FdogVtj_D4Ck7NlNdBY4YwdlLt2nxbrmi3d958m7STHEYe8uLnr8RH11YF9V8OEvVT3BlbkFJ9Z97lENxCRGN5rkniJeqWd0HvOpgDliIYpyK8zz-Kg8Ld9xevwBHqrBMIQLl_c0qkNFSOeI-gA", // OpenAI hesabından aldığın key buraya
+  apiKey: "AeQrf3-O7FdogVtj_D4Ck7NlNdBY4YwdlLt2nxbrmi3d958m7STHEYe8uLnr8RH11YF9V8OEvVT3BlbkFJ9Z97lENxCRGN5rkniJeqWd0HvOpgDliIYpyK8zz-Kg8Ld9xevwBHqrBMIQLl_c0qkNFSOeI-gA", // <- BURAYA KENDİ KEYİNİ YAZMALISIN
 });
 
 app.post("/chat", async (req, res) => {
