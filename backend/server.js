@@ -9,9 +9,9 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// API KEYİNİ BURAYA YAZ!
+// 🔐 OpenAI API anahtarını buraya yapıştır
 const openai = new OpenAI({
-  apiKey: "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", // ← OpenAI hesabından al
+  apiKey: "AeQrf3-O7FdogVtj_D4Ck7NlNdBY4YwdlLt2nxbrmi3d958m7STHEYe8uLnr8RH11YF9V8OEvVT3BlbkFJ9Z97lENxCRGN5rkniJeqWd0HvOpgDliIYpyK8zz-Kg8Ld9xevwBHqrBMIQLl_c0qkNFSOeI-gA", // <-- Bunu kendi key'inle değiştir
 });
 
 app.post("/chat", async (req, res) => {
@@ -26,10 +26,10 @@ app.post("/chat", async (req, res) => {
     res.json({ reply: chatCompletion.choices[0].message.content });
   } catch (error) {
     console.error("HATA:", error.message);
-    res.status(500).json({ reply: "Hata oluştu. Lütfen tekrar dene." });
+    res.status(500).json({ reply: "Sunucu hatası. Lütfen tekrar deneyin." });
   }
 });
 
 app.listen(port, () => {
-  console.log(`🟢 Sunucu aktif: http://localhost:${port}`);
+  console.log(`🟢 Sunucu çalışıyor: http://localhost:${port}`);
 });
