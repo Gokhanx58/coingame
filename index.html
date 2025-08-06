@@ -3,96 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Crypto Analysis</title>
+    <title>Professional Crypto Analysis</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <style>
-        :root {
-            --primary: #4a8eff;
-            --danger: #ff4a4a;
-            --success: #4aff8e;
-            --warning: #ffb84a;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #121826;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            height: 100vh;
-        }
-        .chart-area {
-            display: grid;
-            grid-template-rows: auto 1fr 1fr;
-            gap: 15px;
-            padding: 20px;
-        }
-        .main-chart {
-            height: 500px;
-            background: #1e2130;
-            border-radius: 12px;
-            position: relative;
-        }
-        .secondary-charts {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            height: 300px;
-        }
-        .small-chart {
-            background: #1e2130;
-            border-radius: 12px;
-        }
-        .chat-area {
-            background: #1a1f38;
-            border-left: 1px solid #2a3e78;
-            display: flex;
-            flex-direction: column;
-        }
-        /* Diğer stiller... */
-    </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- SOL TARAF: GRAFİKLER -->
-        <div class="chart-area">
-            <div class="symbol-selector">
-                <select id="main-symbol">
-                    <option value="BTCUSDT.P">BTC/USDT</option>
-                    <option value="ETHUSDT.P">ETH/USDT</option>
-                    <option value="SOLUSDT.P">SOL/USDT</option>
-                    <option value="SUIUSDT.P">SUI/USDT</option>
-                    <option value="DOGEUSDT.P">DOGE/USDT</option>
-                    <option value="AVAXUSDT.P">AVAX/USDT</option>
-                    <option value="BTC.D">BTC Dominance</option>
-                    <option value="TOTAL2">Altcoin Market Cap</option>
-                    <option value="USDT.D">USDT Dominance</option>
+    <div class="container">
+        <!-- GRAFİK BÖLÜMÜ -->
+        <div class="chart-section">
+            <div class="chart-controls">
+                <select id="timeframe">
+                    <option value="15">15 Dakika</option>
+                    <option value="60">1 Saat</option>
+                    <option value="240">4 Saat</option>
+                    <option value="1D">1 Gün</option>
                 </select>
-            </div>
-            
-            <div class="main-chart">
-                <div id="tradingview_main"></div>
-                <div class="indicators">
-                    <span id="rsi-value">RSI: --</span>
-                    <span id="macd-value">MACD: --</span>
-                    <span id="supertrend-value">Supertrend: --</span>
+                <div class="symbol-tabs">
+                    <button class="active" data-symbol="BTCUSDT.P">BTC</button>
+                    <button data-symbol="ETHUSDT.P">ETH</button>
+                    <button data-symbol="SOLUSDT.P">SOL</button>
+                    <button data-symbol="SUIUSDT.P">SUI</button>
+                    <button data-symbol="DOGEUSDT.P">DOGE</button>
+                    <button data-symbol="AVAXUSDT.P">AVAX</button>
+                    <button data-symbol="BTC.D">BTC.D</button>
+                    <button data-symbol="TOTAL2">TOTAL2</button>
+                    <button data-symbol="USDT.D">USDT.D</button>
                 </div>
             </div>
             
-            <div class="secondary-charts">
-                <div class="small-chart" id="secondary_chart1"></div>
-                <div class="small-chart" id="secondary_chart2"></div>
-                <div class="small-chart" id="secondary_chart3"></div>
+            <div class="main-chart" id="tradingview_chart"></div>
+            
+            <div class="technical-indicators">
+                <div class="indicator">
+                    <span>RSI(14):</span>
+                    <span id="rsi-value">--</span>
+                </div>
+                <div class="indicator">
+                    <span>MACD:</span>
+                    <span id="macd-value">--</span>
+                </div>
+                <div class="indicator">
+                    <span>Supertrend:</span>
+                    <span id="supertrend-value">--</span>
+                </div>
             </div>
         </div>
         
-        <!-- SAĞ TARAF: SOHBET VE ANALİZ -->
-        <div class="chat-area">
+        <!-- SOHBET BÖLÜMÜ -->
+        <div class="chat-section">
             <div class="chat-header">
                 <h3>AI Trading Assistant</h3>
                 <div class="market-status">
@@ -101,173 +60,22 @@
                     <span id="total2-status">TOTAL2: $--</span>
                 </div>
             </div>
-            <div class="chat-box" id="chat-box">
+            
+            <div class="chat-messages" id="chat-messages">
                 <div class="ai-message">
-                    <p>Merhaba! Size nasıl yardımcı olabilirim? Hangi coin hakkında analiz istersiniz?</p>
+                    <p>Merhaba! Hangi kripto varlık hakkında analiz istersiniz?</p>
                 </div>
             </div>
-            <div class="chat-controls">
+            
+            <div class="chat-input">
                 <input type="text" id="user-input" placeholder="BTC için analiz yapar mısın?">
                 <button id="send-btn">Gönder</button>
-                <button id="analyze-btn">Grafik Analiz</button>
+                <input type="file" id="image-upload" accept="image/*">
+                <label for="image-upload">Grafik Yükle</label>
             </div>
         </div>
     </div>
 
-    <script>
-        // 1. TRADINGVIEW WIDGETLERİ
-        const mainChart = new TradingView.widget({
-            "autosize": true,
-            "symbol": "MEXC:BTCUSDT.P",
-            "interval": "15",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "tr",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "hide_side_toolbar": false,
-            "studies": [
-                "RSI@tv-basicstudies",
-                "MACD@tv-basicstudies",
-                "STD;Supertrend@tv-basicstudies"
-            ],
-            "container_id": "tradingview_main"
-        });
-
-        // 2. GERÇEK ZAMANLI VERİ ALMA
-        async function fetchRealTimeData(symbol) {
-            try {
-                const response = await fetch(`https://api.mexc.com/api/v3/ticker/24hr?symbol=${symbol}`);
-                const data = await response.json();
-                return {
-                    price: parseFloat(data.lastPrice).toFixed(2),
-                    change: parseFloat(data.priceChangePercent).toFixed(2),
-                    high: parseFloat(data.highPrice).toFixed(2),
-                    low: parseFloat(data.lowPrice).toFixed(2)
-                };
-            } catch (error) {
-                console.error("API Error:", error);
-                return null;
-            }
-        }
-
-        // 3. TEKNİK ANALİZ HESAPLAMA
-        async function calculateTechnicalAnalysis(symbol) {
-            // Bu kısım gerçekte TradingView API veya TA-Lib kullanılmalı
-            // Mock data yerine:
-            const response = await fetch(`https://api.taapi.io/rsi?secret=YOUR_API_KEY&exchange=binance&symbol=${symbol}&interval=15m`);
-            const data = await response.json();
-            
-            return {
-                rsi: data.value || (Math.random() * 30 + 35).toFixed(2),
-                macd: (Math.random() * 0.5 - 0.25).toFixed(4),
-                supertrend: Math.random() > 0.5 ? "AL" : "SAT",
-                support: (Math.random() * 1000 + 39000).toFixed(2),
-                resistance: (Math.random() * 1000 + 41000).toFixed(2)
-            };
-        }
-
-        // 4. AI ANALİZ SİSTEMİ
-        async function generateAdvancedAnalysis(question, symbol = null) {
-            // Tüm gerekli verileri topla
-            const [btcData, ethData, total2Data, usdtData, techAnalysis] = await Promise.all([
-                fetchRealTimeData('BTCUSDT.P'),
-                fetchRealTimeData('ETHUSDT.P'),
-                fetchRealTimeData('TOTAL2'),
-                fetchRealTimeData('USDT.D'),
-                symbol ? calculateTechnicalAnalysis(symbol) : null
-            ]);
-
-            // Piyasa durumu analizi
-            const marketCondition = (total2Data.change > 0 && usdtData.change < 0) ? 
-                "Altcoin sezonu (Altseason)" : 
-                "Bitcoin liderliğinde piyasa";
-
-            // Detaylı analiz oluştur
-            let analysis = `
-            📊 <strong>${symbol || 'Genel Piyasa'} Analizi</strong> (${new Date().toLocaleTimeString()})
-            ━━━━━━━━━━━━━━━━━━━
-            🌍 <strong>Piyasa Durumu:</strong> ${marketCondition}
-            📌 <strong>BTC Dominansı:</strong> ${btcData.price} (${btcData.change}%)
-            📌 <strong>Altcoin Piyasa Değeri:</strong> $${total2Data.price}B (${total2Data.change}%)
-            📌 <strong>USDT Dominansı:</strong> ${usdtData.price}% (${usdtData.change}%)
-            `;
-
-            if (symbol) {
-                analysis += `
-                🔍 <strong>Teknik Göstergeler (${symbol}):</strong>
-                - RSI(14): ${techAnalysis.rsi} ${techAnalysis.rsi > 70 ? '🔴 Aşırı Alım' : techAnalysis.rsi < 30 ? '🟢 Aşırı Satım' : '🟡 Nötr'}
-                - MACD: ${techAnalysis.macd > 0 ? '🟢 Pozitif' : '🔴 Negatif'}
-                - Supertrend: ${techAnalysis.supertrend === 'AL' ? '🟢 AL Sinyali' : '🔴 SAT Sinyali'}
-                
-                🎯 <strong>Kritik Seviyeler:</strong>
-                - Destek: ${techAnalysis.support}
-                - Direnç: ${techAnalysis.resistance}
-                `;
-            }
-
-            // Öneri ekle
-            analysis += `
-            💡 <strong>Öneri:</strong> ${generateTradingAdvice(techAnalysis, btcData, total2Data)}
-            `;
-
-            return analysis;
-        }
-
-        // 5. TRADING ÖNERİ SİSTEMİ
-        function generateTradingAdvice(tech, btc, total2) {
-            if (tech.rsi > 70 && total2.change < 0) {
-                return "Aşırı alım bölgesi + Altcoinler zayıf → Kısa pozisyon düşünülebilir";
-            } else if (tech.rsi < 30 && btc.change > 2) {
-                return "Aşırı satım + BTC güçlü → Uzun pozisyon için uygun";
-            } else {
-                return "Piyasa dengede. Küçük pozisyonlarla işlem yapılabilir";
-            }
-        }
-
-        // 6. SOHBET SİSTEMİ
-        document.getElementById('send-btn').addEventListener('click', async () => {
-            const input = document.getElementById('user-input').value;
-            if (!input.trim()) return;
-
-            addMessage(input, 'user');
-            
-            const analysis = await generateAdvancedAnalysis(input);
-            addMessage(analysis, 'ai');
-        });
-
-        function addMessage(content, sender) {
-            const chatBox = document.getElementById('chat-box');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `${sender}-message`;
-            messageDiv.innerHTML = `<p>${content}</p>`;
-            chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // 7. SAYFA YÜKLENİRKEN
-        window.onload = async () => {
-            // Başlangıç verilerini yükle
-            updateMarketData();
-            setInterval(updateMarketData, 30000); // 30 saniyede bir güncelle
-            
-            // Başlangıç analizi göster
-            const welcomeAnalysis = await generateAdvancedAnalysis("Genel piyasa durumu nedir?");
-            addMessage(welcomeAnalysis, 'ai');
-        };
-
-        async function updateMarketData() {
-            const [btc, eth, total2] = await Promise.all([
-                fetchRealTimeData('BTCUSDT.P'),
-                fetchRealTimeData('ETHUSDT.P'),
-                fetchRealTimeData('TOTAL2')
-            ]);
-            
-            document.getElementById('btc-status').textContent = `BTC: $${btc.price} (${btc.change}%)`;
-            document.getElementById('eth-status').textContent = `ETH: $${eth.price} (${eth.change}%)`;
-            document.getElementById('total2-status').textContent = `TOTAL2: $${total2.price}B (${total2.change}%)`;
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
