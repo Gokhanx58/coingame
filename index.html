@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Crypto Analysis</title>
+    <title>Advanced Crypto Analysis</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="dashboard">
         <!-- GRAFİK BÖLÜMÜ -->
         <div class="chart-section">
             <div class="chart-controls">
@@ -63,15 +63,14 @@
             
             <div class="chat-messages" id="chat-messages">
                 <div class="ai-message">
-                    <p>Merhaba! Hangi kripto varlık hakkında analiz istersiniz?</p>
+                    <p>Merhaba! Hangi kripto varlık hakkında analiz istersiniz? Örneğin: "BTCUSDT analiz yapar mısın?"</p>
                 </div>
             </div>
             
             <div class="chat-input">
-                <input type="text" id="user-input" placeholder="BTC için analiz yapar mısın?">
+                <input type="text" id="user-input" placeholder="Mesajınızı yazın...">
                 <button id="send-btn">Gönder</button>
-                <input type="file" id="image-upload" accept="image/*">
-                <label for="image-upload">Grafik Yükle</label>
+                <button id="quick-analysis">Hızlı Analiz</button>
             </div>
         </div>
     </div>
