@@ -1,191 +1,190 @@
-/* style.css */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #121826;
-    color: #ffffff;
+:root {
+    --primary: #4a8eff;
+    --danger: #ff4a4a;
+    --success: #4aff8e;
+    --warning: #ffb84a;
+    --bg-dark: #121826;
+    --bg-light: #1e2130;
+    --border: #2a3e78;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-.header {
-    text-align: center;
-    padding: 20px;
-    background: #1a1f38;
-    margin-bottom: 20px;
-}
-
-.main-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    padding: 0 20px;
-    max-width: 1800px;
-    margin: 0 auto;
-}
-
-.chart-section {
-    background: #1a1f38;
-    padding: 20px;
-    border-radius: 10px;
-}
-
-.symbol-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.symbol-btn {
-    padding: 10px 15px;
-    background: #2a3e78;
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-dark);
     color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
+    height: 100vh;
+    overflow: hidden;
 }
 
-.symbol-btn:hover {
-    background: #3a4e88;
+.container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    height: 100vh;
 }
 
-.chart-container {
+/* GRAFİK BÖLÜMÜ */
+.chart-section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    padding: 20px;
+    background: var(--bg-light);
+}
+
+.chart-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+#timeframe {
+    padding: 8px 12px;
+    background: var(--bg-dark);
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+}
+
+.symbol-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.symbol-tabs button {
+    padding: 8px 12px;
+    background: var(--bg-dark);
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.symbol-tabs button.active {
+    background: var(--primary);
+    border-color: var(--primary);
 }
 
 .main-chart {
-    height: 500px;
-    background: #1e2130;
+    height: 800px;
+    width: 100%;
+    background: var(--bg-dark);
     border-radius: 10px;
-    overflow: hidden;
+    margin-bottom: 15px;
 }
 
-.secondary-charts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+.technical-indicators {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    background: var(--bg-dark);
+    border-radius: 5px;
 }
 
-.small-chart {
-    height: 250px;
-    background: #1e2130;
-    border-radius: 10px;
-    overflow: hidden;
+.indicator {
+    display: flex;
+    gap: 5px;
 }
 
-.analysis-result {
-    background: #1e2130;
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
-}
-
+/* SOHBET BÖLÜMÜ */
 .chat-section {
-    background: #1a1f38;
-    border-radius: 10px;
-    padding: 20px;
     display: flex;
     flex-direction: column;
+    background: var(--bg-light);
+    border-left: 1px solid var(--border);
 }
 
 .chat-header {
-    padding-bottom: 15px;
-    border-bottom: 1px solid #2a3e78;
-    margin-bottom: 15px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
 }
 
-.chat-box {
-    flex-grow: 1;
+.market-status {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.chat-messages {
+    flex: 1;
     overflow-y: auto;
-    max-height: 600px;
-    padding: 10px;
-    background: #1e2130;
-    border-radius: 8px;
-    margin-bottom: 15px;
-}
-
-.user-message, .ai-message {
-    margin-bottom: 15px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    max-width: 80%;
-}
-
-.user-message {
-    background: #2a3e78;
-    margin-left: auto;
-}
-
-.ai-message {
-    background: #1e293b;
-    margin-right: auto;
+    padding: 15px;
 }
 
 .chat-input {
     display: flex;
+    padding: 15px;
     gap: 10px;
+    border-top: 1px solid var(--border);
 }
 
-.chat-input input {
-    flex-grow: 1;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    background: #1e2130;
+#user-input {
+    flex: 1;
+    padding: 10px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
     color: white;
+    border-radius: 5px;
 }
 
-.chat-input button {
-    padding: 12px 20px;
-    background: #2a3e78;
+#send-btn {
+    padding: 10px 20px;
+    background: var(--primary);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
 }
 
-.image-upload {
-    margin-top: 10px;
-}
-
-.image-upload input {
+#image-upload {
     display: none;
 }
 
-.image-upload label {
-    display: block;
+#image-upload + label {
     padding: 10px;
-    background: #2a3e78;
+    background: var(--bg-dark);
     color: white;
-    text-align: center;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
 }
 
+/* MESAJ STİLLERİ */
+.ai-message, .user-message {
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    max-width: 80%;
+}
+
+.ai-message {
+    background: var(--bg-dark);
+    align-self: flex-start;
+}
+
+.user-message {
+    background: var(--primary);
+    align-self: flex-end;
+}
+
+/* MOBİL UYUMLULUK */
 @media (max-width: 1200px) {
-    .main-container {
+    .container {
         grid-template-columns: 1fr;
     }
     
     .main-chart {
+        height: 600px;
+    }
+    
+    .chat-section {
         height: 400px;
-    }
-    
-    .secondary-charts {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .secondary-charts {
-        grid-template-columns: 1fr;
-    }
-    
-    .small-chart {
-        height: 200px;
     }
 }
