@@ -208,6 +208,8 @@
     };
 
     const fmt = (n, d=2) => Number(n).toLocaleString('tr-TR', { minimumFractionDigits:d, maximumFractionDigits:d });
+    const fmtPlain = (n, d=2) => Number(n).toFixed(d);
+    const fmtPlain = (n, d=2) => Number(n).toFixed(d);
 
     function toast(msg) {
       const el = document.createElement('div');
@@ -216,6 +218,80 @@
       document.body.appendChild(el);
       setTimeout(()=> el.remove(), 2500);
     }
+
+    // Helper: extract symbol from free text (btc/eth/sol/avax/sui/doge)
+    function parseSymbolFromText(text='') {
+      const t = String(text).toLowerCase();
+      if (/\bbtc(usdt|usd)?\b/.test(t) || /\bbitcoin\b/.test(t)) return 'BTCUSDT';
+      if (/\beth(usdt|usd)?\b/.test(t) || /\bethereum\b/.test(t)) return 'ETHUSDT';
+      if (/\bsol(usdt|usd)?\b/.test(t) || /\bsolana\b/.test(t)) return 'SOLUSDT';
+      if (/\bavax(usdt|usd)?\b/.test(t)/) return 'AVAXUSDT';
+      if (/\bsui(usdt|usd)?\b/.test(t)) return 'SUIUSDT';
+      if (/\bdoge(usdt|usd)?\b/.test(t) || /\bdogecoin\b/.test(t)) return 'DOGEUSDT';
+      return null;
+    }
+
+    // Build a strict numeric snapshot for the model (no locale formatting)
+    function buildSnapshot() {
+      const i = state.indicators || {};
+      const last = state.klines.length ? state.klines[state.klines.length-1] : {};
+      const num = (x)=> (typeof x === 'number' && isFinite(x)) ? x : 0;
+      return {
+        symbol: state.symbol,
+        interval: state.interval,
+        ts: Date.now(),
+        last_close: num(i.close ?? last.close ?? 0),
+        ema9: num(i.ema9),
+        ema21: num(i.ema21),
+        ema50: num(i.ema50),
+        ema200: num(i.ema200),
+        rsi14: num(i.rsi),
+        macd: num(i.macd),
+        macd_signal: num(i.macdSignal),
+        macd_hist: num(i.macdHist),
+        atr14: num(i.atr),
+        last_candle: { o:num(last.open), h:num(last.high), l:num(last.low), c:num(last.close), v:num(last.volume) }
+      };
+    }
+
+    function snapshotString() { return JSON.stringify(buildSnapshot()); }
+
+    // Helper: extract symbol from free text (btc/eth/sol/avax/sui/doge)
+    function parseSymbolFromText(text='') {
+      const t = String(text).toLowerCase();
+      if (/\bbtc(usdt|usd)?\b/.test(t) || /\bbitcoin\b/.test(t)) return 'BTCUSDT';
+      if (/\beth(usdt|usd)?\b/.test(t) || /\bethereum\b/.test(t)) return 'ETHUSDT';
+      if (/\bsol(usdt|usd)?\b/.test(t) || /\bsolana\b/.test(t)) return 'SOLUSDT';
+      if (/\bavax(usdt|usd)?\b/.test(t)/) return 'AVAXUSDT';
+      if (/\bsui(usdt|usd)?\b/.test(t)) return 'SUIUSDT';
+      if (/\bdoge(usdt|usd)?\b/.test(t) || /\bdogecoin\b/.test(t)) return 'DOGEUSDT';
+      return null;
+    }
+
+    // Build a strict numeric snapshot for the model (no locale formatting)
+    function buildSnapshot() {
+      const i = state.indicators || {};
+      const last = state.klines.length ? state.klines[state.klines.length-1] : {};
+      const num = (x)=> (typeof x === 'number' && isFinite(x)) ? x : 0;
+      return {
+        symbol: state.symbol,
+        interval: state.interval,
+        ts: Date.now(),
+        last_close: num(i.close ?? last.close ?? 0),
+        ema9: num(i.ema9),
+        ema21: num(i.ema21),
+        ema50: num(i.ema50),
+        ema200: num(i.ema200),
+        rsi14: num(i.rsi),
+        macd: num(i.macd),
+        macd_signal: num(i.macdSignal),
+        macd_hist: num(i.macdHist),
+        atr14: num(i.atr),
+        last_candle: { o:num(last.open), h:num(last.high), l:num(last.low), c:num(last.close), v:num(last.volume) }
+      };
+    }
+
+    function snapshotString() { return JSON.stringify(buildSnapshot()); }
 
     // =====================
     // Charts
@@ -510,8 +586,20 @@
 
     function getChatContext() {
       const sys = state.systemPrompt && state.systemPrompt.trim().length>0 ? state.systemPrompt : $('#systemPrompt').value;
+      const snap = snapshotString();
+      const rules = `KURALLAR:\n- Sadece SNAPSHOT verilerini kullan, yeni fiyat uydurma.\n- Cevap Türkçe ve net olsun.\n- Çıktıda sembol: ${state.symbol}, interval: ${state.interval}.\n- Giriş/SL/TP fiyatları iki ondalıkla yaz.\n- Olasılığı % olarak ver.\n- SNAPSHOT dışı veri kullanma.\n- Kullanıcı başka sembol yazsa bile SNAPSHOT sembolü esas. (Ben ayrı güncelle diye komut gelirse sembolü değiştiririm.)`;
       return [
         { role:'system', content: sys },
+        { role:'system', content: 'SNAPSHOT: ' + snap },
+        { role:'system', content: rules }
+      ];
+    }, interval: ${state.interval}.\n- Giriş/SL/TP fiyatları iki ondalıkla yaz.\n- Olasılığı % olarak ver.\n- SNAPSHOT dışı veri kullanma.\n- Kullanıcı başka sembol yazsa bile SNAPSHOT sembolü esas. (Ben ayrı güncelle diye komut gelirse sembolü değiştiririm.)`;
+      return [
+        { role:'system', content: sys },
+        { role:'system', content: 'SNAPSHOT: ' + snap },
+        { role:'system', content: rules }
+      ];
+    },
         { role:'user', content: `Seninle sitede konuşuyorum. Sembol: ${state.symbol}, Zaman: ${state.interval}. Son indikatörler: ${JSON.stringify(state.indicators)}. Net scalp önerisi ver.` }
       ];
     }
@@ -571,8 +659,21 @@
       const text = p.value.trim();
       if (!text) return;
       p.value='';
+      // Otomatik sembol algılama
+      const maybe = parseSymbolFromText(text);
+      if (maybe && maybe !== state.symbol) {
+        $('#symbol').value = maybe; state.symbol = maybe; await reloadAll();
+        addMsg('assistant', `Sembol ${maybe} olarak güncellendi, canlı veriyi aldım.`);
+      }
       const msgs = getChatContext();
       msgs.push({ role:'user', content: text });
+      streamChat(msgs);
+    } olarak güncellendi, canlı veriyi aldım.`);
+      }
+      const msgs = getChatContext();
+      msgs.push({ role:'user', content: text });
+      streamChat(msgs);
+    });
       streamChat(msgs);
     }
 
@@ -585,6 +686,57 @@
 
     async function sendImageToChat(dataUrl, extra='Bu grafiği analiz et ve scalp planı çıkar.') {
       const key = state.key || $('#apiKey').value; if (!key) { toast('API key gir'); return; }
+      const model = state.model || $('#model').value;
+      $('#modelName').textContent = model;
+
+      const snap = snapshotString();
+      addMsg('user', '[Grafik görseli gönderildi] ' + extra);
+      const holder = document.createElement('div');
+      holder.className = 'p-3 rounded-xl msg-ai';
+      holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`;
+      $('#chat').appendChild(holder);
+      const out = holder.querySelector('#streaming');
+
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, {
+        method:'POST',
+        headers: {
+          'X-APP-KEY': key,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          stream: true,
+          messages: [
+            { role:'system', content: state.systemPrompt || $('#systemPrompt').value },
+            { role:'system', content: 'SNAPSHOT: ' + snap },
+            { role:'system', content: 'KURALLAR: Sadece SNAPSHOT’taki fiyat/indikatörleri kullan; sayı uydurma; Türkçe yaz; giriş/SL/TP iki ondalık; olasılığı % ver.' },
+            { role:'user', content: [
+              { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` },
+              { type:'image_url', image_url: { url: dataUrl } }
+            ]}
+          ]
+        })
+      });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false; let acc = '';
+      while (!done) {
+        const { value, done: d } = await reader.read();
+        done = d
+      const model = state.model || $('#model').value;
+      $('#modelName').textContent = model;
+
+      const snap = snapshotString();
+      addMsg('user', '[Grafik görseli gönderildi] ' + extra);
+      const holder = document.createElement('div');
+      holder.className = 'p-3 rounded-xl msg-ai';
+      holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`;
+      $('#chat').appendChild(holder);
+      const out = holder.querySelector('#streaming');
+
+      const res = await fetch(`${state
       const model = state.model || $('#model').value;
       $('#modelName').textContent = model;
 
@@ -708,93 +860,3 @@
         container_id: 'tv-container'
       });
     }
-
-    // =====================
-    // Events
-    // =====================
-    function refreshTitle() {
-      $('#title').textContent = `${state.symbol} • ${state.interval}`;
-      $('#infoSymbol').textContent = state.symbol;
-      $('#infoInterval').textContent = state.interval;
-    }
-
-    async function reloadAll() {
-      refreshTitle();
-      $('#tv-wrapper').style.display = 'none';
-      await loadHistory();
-    }
-
-    $('#btnStart').onclick = ()=> { startWS(); };
-    $('#btnStop').onclick = ()=> { stopWS(); };
-
-    $('#btnAutoAnalyze').onclick = ()=> { $('#analysisText').textContent = buildAnalysisText(); };
-    $('#btnPlan').onclick = ()=> {
-      const p = scoreAndPlan();
-      if (!p) return;
-      const txt = `Yön: ${p.dir} • Olasılık: %${p.prob}\nGiriş: ${fmt(p.entry)}\nStop: ${fmt(p.sl)}\nTP1: ${fmt(p.tp1)}\nTP2: ${fmt(p.tp2)}\nRisk/Ödül: ${p.rr}`;
-      $('#analysisText').textContent = ( $('#analysisText').textContent + '\n\n' + txt ).trim();
-    };
-    $('#btnSendToChat').onclick = ()=> sendAnalysisToChat();
-
-    $('#btnSnap').onclick = ()=> {
-      const dataUrl = chartToDataUrl();
-      if (dataUrl) sendImageToChat(dataUrl, 'Bu canlı grafiğin son hali. Net scalp planı ver.');
-    };
-
-    $('#btnSend').onclick = sendMessageFromInput;
-    $('#prompt').addEventListener('keydown', (e)=>{ if (e.key==='Enter') sendMessageFromInput(); });
-
-    $('#btnTemplate').onclick = ()=>{
-      $('#prompt').value = `📌 GÜNLÜK PROFESYONEL SCALPING ANALİZİ\n⏱️ ${state.interval} | ${state.symbol}\n\n❓ GENEL ANALİZ\nPozisyon yönü net? Neden?\nGiriş seviyesi? Koşullar?\nStop & Hedef (net fiyat)\n\n🔎 TEKNİK\nEMA(9/21/50/200)\nRSI(14) — uyumsuzluk var mı?\nMACD — momentum?\nATR(14) — SL/TP hesapla\nLikidite & Yapı — kırılım/breaker/OB varsa yaz`;
-      $('#prompt').focus();
-    };
-
-    $('#btnSettings').onclick = ()=> settingsModal.showModal();
-    $('#btnSaveSettings').onclick = ()=>{
-      const key = $('#apiKey').value.trim();
-      const model = $('#model').value;
-      const sys = $('#systemPrompt').value.trim();
-      const defSym = $('#defaultSymbol').value.trim().toUpperCase() || 'BTCUSDT';
-      const workerUrl = $('#workerUrl').value.trim();
-      if (key) localStorage.setItem('cg_app_key', key);
-      if (workerUrl) localStorage.setItem('cg_worker_url', workerUrl);
-      localStorage.setItem('cg_model', model);
-      localStorage.setItem('cg_sys', sys);
-      state.key = key; state.model = model; state.systemPrompt = sys; state.workerUrl = workerUrl || state.workerUrl;
-      $('#symbol').value = defSym; state.symbol = defSym;
-      settingsModal.close(); toast('Ayarlar kaydedildi'); reloadAll();
-    };
-
-    $$('#charts, #priceChart, #rsiChart, #macdChart').forEach(() =>{});
-
-    // symbol/interval changes
-    $('#symbol').addEventListener('change', async (e)=>{
-      state.symbol = e.target.value.toUpperCase();
-      await reloadAll();
-    });
-    $('#interval').addEventListener('change', async (e)=>{
-      state.interval = e.target.value; await reloadAll();
-    });
-    $$('.quick').forEach(b=> b.onclick = async ()=>{
-      const s = b.getAttribute('data-s');
-      $('#symbol').value = s; state.symbol = s; await reloadAll();
-    });
-
-    // =====================
-    // Boot
-    // =====================
-    (async function boot(){
-      initCharts();
-      // restore settings
-      if (state.key) $('#apiKey').value = state.key;
-      if (state.workerUrl) $('#workerUrl').value = state.workerUrl;
-      if (state.model) $('#model').value = state.model;
-      if (!state.systemPrompt) state.systemPrompt = $('#systemPrompt').value; else $('#systemPrompt').value = state.systemPrompt;
-      const savedSym = localStorage.getItem('cg_defsym');
-      if (savedSym) { state.symbol = savedSym; $('#symbol').value = savedSym; }
-      await reloadAll();
-      addMsg('assistant', 'Hazırım! Sembol ve zamanı seç, canlı grafiği başlat. Analizleri otomatik yazdırabilir veya benimle konuşarak net plan isteyebilirsin.');
-    })();
-  </script>
-</body>
-</html>
