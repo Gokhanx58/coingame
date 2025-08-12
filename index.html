@@ -396,6 +396,12 @@
     // =====================
     // Data Fetch & WS
     // =====================
+    let updateScheduled = false;
+    function scheduleSetAll() {
+      if (updateScheduled) return;
+      updateScheduled = true;
+      setTimeout(() => { updateScheduled = false; setAllData(); }, 300);
+    }
     async function loadHistory() {
       const url = `https://api.binance.com/api/v3/klines?symbol=${state.symbol}&interval=${state.interval}&limit=500`;
       const res = await fetch(url);
@@ -418,7 +424,7 @@
         const i = state.klines.findIndex(x => x.time === t);
         const cur = { time: t, open: +k.o, high: +k.h, low: +k.l, close: +k.c, volume: +k.v };
         if (i>=0) state.klines[i] = cur; else state.klines.push(cur);
-        setAllData();
+        scheduleSetAll();
       }
       state.ws.onopen = ()=> toast('WS bağlı');
       state.ws.onclose = ()=> toast('WS kapandı');
@@ -512,7 +518,7 @@
 
     async function streamChat(messages) {
       const key = state.key || $('#apiKey').value;
-      if (!key) { toast('Önce Ayarlar > API Key gir'); return; }
+      if (!key) { toast('Önce Ayarlar > Proxy App Key gir'); return; }
       const model = state.model || $('#model').value;
       $('#modelName').textContent = model;
 
@@ -524,7 +530,7 @@
       $('#chat').scrollTop = $('#chat').scrollHeight;
       const out = holder.querySelector('#streaming');
 
-      const res = await fetch('${state.workerUrl}/v1/chat/completions', {
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, {
         method:'POST',
         headers: {
           'X-APP-KEY': key,
@@ -589,7 +595,7 @@
       $('#chat').appendChild(holder);
       const out = holder.querySelector('#streaming');
 
-      const res = await fetch('${state.workerUrl}/v1/chat/completions', {
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, {
         method:'POST',
         headers: {
           'X-APP-KEY': key,
