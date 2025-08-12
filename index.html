@@ -1,80 +1,786 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!doctype html>
+<html lang="tr" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Crypto Analysis</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoinGame Pro – Canlı Analiz & Sohbet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0b1220',
+            card: '#121a2a',
+            accent: '#4ade80',
+            accent2: '#60a5fa',
+          },
+          boxShadow: {
+            soft: '0 10px 30px rgba(0,0,0,0.35)'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://unpkg.com"/>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <style>
+    html, body { height: 100%; background: #0b1220; }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); backdrop-filter: blur(8px); }
+    .scroll-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+    .scroll-thin::-webkit-scrollbar-thumb { background: #22314a; border-radius: 9999px; }
+    .msg-ai { background: rgba(96,165,250,.12); border-left: 2px solid #60a5fa }
+    .msg-me { background: rgba(74,222,128,.12); border-left: 2px solid #4ade80 }
+    /* TradingView iframe placeholder hidden by default */
+    #tv-wrapper { display: none; }
+  </style>
 </head>
-<body>
-    <div class="dashboard">
-        <!-- GRAFİK BÖLÜMÜ -->
-        <div class="chart-section">
-            <div class="chart-controls">
-                <select id="timeframe">
-                    <option value="15">15 Dakika</option>
-                    <option value="60">1 Saat</option>
-                    <option value="240">4 Saat</option>
-                    <option value="1D">1 Gün</option>
-                </select>
-                <div class="symbol-tabs">
-                    <button class="active" data-symbol="BTCUSDT.P">BTC</button>
-                    <button data-symbol="ETHUSDT.P">ETH</button>
-                    <button data-symbol="SOLUSDT.P">SOL</button>
-                    <button data-symbol="SUIUSDT.P">SUI</button>
-                    <button data-symbol="DOGEUSDT.P">DOGE</button>
-                    <button data-symbol="AVAXUSDT.P">AVAX</button>
-                    <button data-symbol="BTC.D">BTC.D</button>
-                    <button data-symbol="TOTAL2">TOTAL2</button>
-                    <button data-symbol="USDT.D">USDT.D</button>
-                </div>
-            </div>
-            
-            <div class="main-chart" id="tradingview_chart"></div>
-            
-            <div class="technical-indicators">
-                <div class="indicator">
-                    <span>RSI(14):</span>
-                    <span id="rsi-value">--</span>
-                </div>
-                <div class="indicator">
-                    <span>MACD:</span>
-                    <span id="macd-value">--</span>
-                </div>
-                <div class="indicator">
-                    <span>Supertrend:</span>
-                    <span id="supertrend-value">--</span>
-                </div>
-            </div>
+<body class="h-full text-slate-200">
+  <div class="h-full w-full grid grid-rows-[auto,1fr]">
+    <!-- Topbar -->
+    <header class="glass shadow-soft sticky top-0 z-20">
+      <div class="max-w-[1400px] mx-auto px-3 md:px-6 py-3 flex flex-col md:flex-row md:items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-2xl bg-accent/20 grid place-items-center"><span class="text-accent font-bold">CG</span></div>
+          <h1 class="font-semibold tracking-tight">CoinGame Pro</h1>
         </div>
-        
-        <!-- SOHBET BÖLÜMÜ -->
-        <div class="chat-section">
-            <div class="chat-header">
-                <h3>AI Trading Assistant</h3>
-                <div class="market-status">
-                    <span id="btc-status">BTC: $--</span>
-                    <span id="eth-status">ETH: $--</span>
-                    <span id="total2-status">TOTAL2: $--</span>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <div class="ai-message">
-                    <p>Merhaba! Hangi kripto varlık hakkında analiz istersiniz? Örneğin: "BTCUSDT analiz yapar mısın?"</p>
-                </div>
-            </div>
-            
-            <div class="chat-input">
-                <input type="text" id="user-input" placeholder="Mesajınızı yazın...">
-                <button id="send-btn">Gönder</button>
-                <button id="quick-analysis">Hızlı Analiz</button>
-            </div>
+        <div class="flex flex-1 flex-wrap items-center gap-2 md:ml-6">
+          <label class="text-xs opacity-70">Sembol</label>
+          <input id="symbol" class="px-3 py-2 rounded-xl bg-card outline-none focus:ring-2 ring-accent/40 w-28 uppercase" value="BTCUSDT" />
+          <label class="text-xs opacity-70 ml-2">Zaman</label>
+          <select id="interval" class="px-3 py-2 rounded-xl bg-card outline-none focus:ring-2 ring-accent/40">
+            <option value="1m">1m</option>
+            <option value="3m">3m</option>
+            <option value="5m" selected>5m</option>
+            <option value="15m">15m</option>
+            <option value="30m">30m</option>
+            <option value="1h">1h</option>
+            <option value="4h">4h</option>
+          </select>
+          <div class="flex gap-2 ml-2">
+            <button id="btnStart" class="px-3 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Canlı Başlat</button>
+            <button id="btnStop" class="px-3 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30">Durdur</button>
+            <button id="btnSnap" class="px-3 py-2 rounded-xl bg-accent2/20 hover:bg-accent2/30">Grafiği Analize Yolla</button>
+          </div>
+          <div class="hidden md:flex items-center gap-1 ml-auto">
+            <button data-s="BTCUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">BTC</button>
+            <button data-s="ETHUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">ETH</button>
+            <button data-s="SOLUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">SOL</button>
+            <button data-s="AVAXUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">AVAX</button>
+            <button data-s="SUIUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">SUI</button>
+            <button data-s="DOGEUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">DOGE</button>
+          </div>
+          <button id="btnSettings" class="ml-auto md:ml-2 px-3 py-2 rounded-xl bg-card hover:bg-card/70">Ayarlar</button>
         </div>
-    </div>
+      </div>
+    </header>
 
-    <script src="script.js"></script>
+    <!-- Main -->
+    <main class="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-[1.7fr,1fr] gap-4 p-3 md:p-6">
+      <!-- Left: Charts & Analysis -->
+      <section class="space-y-4">
+        <div class="glass rounded-2xl p-3 md:p-4 shadow-soft">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <div class="text-sm opacity-70">Canlı Grafik (Binance)</div>
+              <div id="title" class="font-semibold">BTCUSDT • 5m</div>
+            </div>
+            <div class="text-xs opacity-70">EMA(9/21/50/200) • RSI(14) • MACD(12,26,9) • ATR(14)</div>
+          </div>
+          <div id="charts" class="grid gap-2">
+            <div id="priceChart" class="h-[420px]"></div>
+            <div id="rsiChart" class="h-[120px]"></div>
+            <div id="macdChart" class="h-[140px]"></div>
+          </div>
+          <div id="tv-wrapper" class="mt-3">
+            <div class="text-xs opacity-70 mb-1">TradingView Gelişmiş Grafik</div>
+            <div id="tv-container" class="rounded-xl overflow-hidden"></div>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-4 shadow-soft">
+          <div class="flex items-center justify-between">
+            <h2 class="font-semibold">Otomatik Analiz</h2>
+            <div class="text-xs opacity-70">Sembol: <span id="infoSymbol">BTCUSDT</span> • Zaman: <span id="infoInterval">5m</span></div>
+          </div>
+          <div id="indicators" class="grid md:grid-cols-2 gap-3 mt-3 text-sm"></div>
+          <div class="grid md:grid-cols-3 gap-3 mt-3">
+            <button id="btnAutoAnalyze" class="px-3 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Analizi Yaz</button>
+            <button id="btnPlan" class="px-3 py-2 rounded-xl bg-accent2/20 hover:bg-accent2/30">TP/SL Planı</button>
+            <button id="btnSendToChat" class="px-3 py-2 rounded-xl bg-card hover:bg-card/70">Sohbete Gönder</button>
+          </div>
+          <pre id="analysisText" class="mt-3 p-3 rounded-xl bg-black/30 text-xs whitespace-pre-wrap"></pre>
+        </div>
+
+        <div class="glass rounded-2xl p-4 shadow-soft">
+          <div class="flex items-center justify-between">
+            <h2 class="font-semibold">Grafik/SS Yükle – Sana At</h2>
+            <input id="fileInput" type="file" accept="image/*" class="text-xs" />
+          </div>
+          <div id="uploads" class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+        </div>
+      </section>
+
+      <!-- Right: Chat -->
+      <aside class="glass rounded-2xl p-0 shadow-soft flex flex-col overflow-hidden">
+        <div class="p-3 md:p-4 border-b border-white/10 flex items-center justify-between">
+          <div>
+            <div class="text-sm opacity-70">Yerleşik Asistan</div>
+            <div class="font-semibold">Gerçek Zamanlı Sohbet</div>
+          </div>
+          <div class="text-xs opacity-70">Model: <span id="modelName">gpt-4o-mini</span></div>
+        </div>
+        <div id="chat" class="flex-1 overflow-auto p-3 md:p-4 space-y-3 scroll-thin">
+          <!-- messages inserted here -->
+        </div>
+        <div class="p-2 border-t border-white/10">
+          <div class="flex gap-2">
+            <button id="btnTemplate" class="px-2 py-2 rounded-xl bg-card hover:bg-card/70 text-xs">Şablon</button>
+            <input id="prompt" class="flex-1 px-3 py-2 rounded-xl bg-card outline-none" placeholder="Buradan konuş – örn: BTC 5m için scalp planı yaz" />
+            <button id="btnSend" class="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Gönder</button>
+          </div>
+          <div class="mt-2 text-[10px] opacity-60">Not: Yayına alacaksan, <b>Ayarlar</b> kısmından kendi OpenAI API anahtarını gir. Anahtar tarayıcıda saklanır (localStorage).</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <dialog id="settingsModal" class="rounded-2xl w-[95%] max-w-xl bg-card p-0 text-slate-200">
+    <div class="p-4 border-b border-white/10 flex items-center justify-between">
+      <div>
+        <div class="text-sm opacity-70">Uygulama Ayarları</div>
+        <div class="font-semibold">OpenAI, Stil ve Varsayılanlar</div>
+      </div>
+      <button onclick="settingsModal.close()" class="px-2 py-1 rounded-lg bg-white/10">Kapat</button>
+    </div>
+    <div class="p-4 space-y-4">
+      <div>
+        <label class="block text-xs opacity-70 mb-1">OpenAI API Key (tarayıcıda saklanır)</label>
+        <input id="apiKey" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="sk-..." />
+      </div>
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs opacity-70 mb-1">Model</label>
+          <select id="model" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none">
+            <option value="gpt-4o-mini" selected>gpt-4o-mini</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs opacity-70 mb-1">Varsayılan Sembol</label>
+          <input id="defaultSymbol" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none uppercase" value="BTCUSDT" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs opacity-70 mb-1">Asistan Stili (Sistem Prompt)</label>
+        <textarea id="systemPrompt" rows="5" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none">Sen CoinGame Pro içindeki yerleşik asistanısın. Türkçe konuş. Olduğu gibi söyle; yumuşatma. Geçmişe ve işlerin her zaman nasıl yapıldığına değer veren geleneksel bir bakış açısını benimse; ama ileri görüşlü de ol. Cesaret verici bir ton kullan. Konuşkan ve hoşsohbet ol. Z kuşağından biri gibi konuş. Analizlerde net ol, scalp işlem için giriş/çıkış/SL/TP ve olasılık yüzdeleri ver. Gereksiz uyarı veya destan yazma. Kısa, net, iş bitirir. Teknik bileşenler: EMA(9/21/50/200), RSI(14), MACD, ATR(14).</textarea>
+      </div>
+      <div class="flex justify-end">
+        <button id="btnSaveSettings" class="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Kaydet</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // =====================
+    // Utility
+    // =====================
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    const state = {
+      symbol: 'BTCUSDT',
+      interval: '5m',
+      ws: null,
+      klines: [], // {time, open, high, low, close, volume}
+      indicators: {},
+      key: localStorage.getItem('cg_api_key') || '',
+      model: localStorage.getItem('cg_model') || 'gpt-4o-mini',
+      systemPrompt: localStorage.getItem('cg_sys') || '',
+    };
+
+    const fmt = (n, d=2) => Number(n).toLocaleString('tr-TR', { minimumFractionDigits:d, maximumFractionDigits:d });
+
+    function toast(msg) {
+      const el = document.createElement('div');
+      el.className = 'fixed bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-xl text-sm shadow-soft';
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(()=> el.remove(), 2500);
+    }
+
+    // =====================
+    // Charts
+    // =====================
+    let priceChart, rsiChart, macdChart, priceSeries, ema9Series, ema21Series, ema50Series, ema200Series, rsiLine, macdLine, signalLine, histSeries;
+
+    function initCharts() {
+      // Price
+      priceChart = LightweightCharts.createChart($('#priceChart'), {
+        layout: { background: { color: '#0b1220' }, textColor: '#cbd5e1' },
+        grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
+        rightPriceScale: { borderColor: '#334155' },
+        timeScale: { borderColor: '#334155' },
+        crosshair: { mode: 1 },
+        autoSize: true,
+        localization: { priceFormatter: (p)=> fmt(p, 2) }
+      });
+      priceSeries = priceChart.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', wickUpColor: '#10b981', wickDownColor: '#ef4444', borderVisible: false });
+      ema9Series = priceChart.addLineSeries({ color: '#22c55e', lineWidth: 1 });
+      ema21Series = priceChart.addLineSeries({ color: '#3b82f6', lineWidth: 1 });
+      ema50Series = priceChart.addLineSeries({ color: '#eab308', lineWidth: 1 });
+      ema200Series = priceChart.addLineSeries({ color: '#a855f7', lineWidth: 1 });
+
+      // RSI
+      rsiChart = LightweightCharts.createChart($('#rsiChart'), {
+        layout: { background: { color: '#0b1220' }, textColor: '#cbd5e1' },
+        grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
+        rightPriceScale: { borderColor: '#334155' },
+        timeScale: { borderColor: '#334155' },
+        autoSize: true,
+      });
+      rsiLine = rsiChart.addLineSeries({ color: '#9ca3af', lineWidth: 1 });
+      // add 30/70 lines
+      const rsi30 = rsiChart.addLineSeries({ color: '#eab308', lineWidth: 1, lineStyle: 1 });
+      const rsi70 = rsiChart.addLineSeries({ color: '#eab308', lineWidth: 1, lineStyle: 1 });
+      rsi30.setData([]); rsi70.setData([]);
+
+      // MACD
+      macdChart = LightweightCharts.createChart($('#macdChart'), {
+        layout: { background: { color: '#0b1220' }, textColor: '#cbd5e1' },
+        grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
+        rightPriceScale: { borderColor: '#334155' },
+        timeScale: { borderColor: '#334155' },
+        autoSize: true,
+      });
+      macdLine = macdChart.addLineSeries({ color: '#60a5fa', lineWidth: 1 });
+      signalLine = macdChart.addLineSeries({ color: '#f87171', lineWidth: 1 });
+      histSeries = macdChart.addHistogramSeries({});
+
+      // keep refs for rsi 30/70
+      priceChart.timeScale().subscribeVisibleTimeRangeChange(() => syncScales());
+      rsiChart.timeScale().subscribeVisibleTimeRangeChange(() => syncScales());
+      macdChart.timeScale().subscribeVisibleTimeRangeChange(() => syncScales());
+
+      function syncScales() {
+        const range = priceChart.timeScale().getVisibleRange();
+        if (range) {
+          rsiChart.timeScale().setVisibleRange(range);
+          macdChart.timeScale().setVisibleRange(range);
+        }
+      }
+
+      // store for later to set rsi 30/70 overlays
+      rsiChart._rsiBands = { rsi30, rsi70 };
+    }
+
+    function setAllData() {
+      if (!state.klines.length) return;
+      const candles = state.klines.map(k => ({ time: k.time/1000, open: k.open, high: k.high, low: k.low, close: k.close }));
+      priceSeries.setData(candles);
+
+      const closes = state.klines.map(k => k.close);
+      const times = state.klines.map(k => Math.floor(k.time/1000));
+
+      const ema9 = calcEMA(closes, 9);
+      const ema21 = calcEMA(closes, 21);
+      const ema50 = calcEMA(closes, 50);
+      const ema200 = calcEMA(closes, 200);
+      ema9Series.setData(ema9.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+      ema21Series.setData(ema21.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+      ema50Series.setData(ema50.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+      ema200Series.setData(ema200.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+
+      const rsi = calcRSI(closes, 14);
+      rsiLine.setData(rsi.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+      const rsi30 = rsi.map((v,i)=> ({ time: times[i], value: 30 }));
+      const rsi70 = rsi.map((v,i)=> ({ time: times[i], value: 70 }));
+      rsiChart._rsiBands.rsi30.setData(rsi30);
+      rsiChart._rsiBands.rsi70.setData(rsi70);
+
+      const { macd, signal, hist } = calcMACD(closes, 12, 26, 9);
+      macdLine.setData(macd.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+      signalLine.setData(signal.map((v,i)=> v? { time: times[i], value: v } : null).filter(Boolean));
+      histSeries.setData(hist.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
+
+      const atr = calcATR(state.klines, 14);
+      // save indicators for analysis
+      state.indicators = {
+        ema9: ema9.at(-1), ema21: ema21.at(-1), ema50: ema50.at(-1), ema200: ema200.at(-1),
+        rsi: rsi.at(-1),
+        macd: macd.at(-1), macdSignal: signal.at(-1), macdHist: hist.at(-1),
+        atr: atr.at(-1),
+        close: closes.at(-1),
+        time: times.at(-1),
+      };
+      renderIndicatorCards();
+      priceChart.timeScale().fitContent();
+      rsiChart.timeScale().fitContent();
+      macdChart.timeScale().fitContent();
+    }
+
+    // =====================
+    // Indicators
+    // =====================
+    function calcEMA(values, period) {
+      const k = 2/(period+1);
+      const ema = new Array(values.length).fill(null);
+      let prev;
+      for (let i=0; i<values.length; i++) {
+        const v = values[i];
+        if (v==null) continue;
+        if (i < period-1) { ema[i] = null; continue; }
+        if (i===period-1) {
+          const sma = values.slice(0,period).reduce((a,b)=>a+b,0)/period;
+          ema[i] = sma; prev = sma; continue;
+        }
+        const cur = (v - prev) * k + prev;
+        ema[i] = cur; prev = cur;
+      }
+      return ema;
+    }
+
+    function calcRSI(values, period=14) {
+      const rsi = new Array(values.length).fill(null);
+      let gains=0, losses=0;
+      for (let i=1; i<=period; i++) {
+        const diff = values[i]-values[i-1];
+        if (diff>=0) gains += diff; else losses -= diff;
+      }
+      let avgGain = gains/period; let avgLoss = losses/period;
+      rsi[period] = avgLoss===0 ? 100 : 100 - (100/(1 + (avgGain/avgLoss)));
+      for (let i=period+1; i<values.length; i++) {
+        const diff = values[i]-values[i-1];
+        const gain = Math.max(0, diff); const loss = Math.max(0, -diff);
+        avgGain = (avgGain*(period-1) + gain)/period;
+        avgLoss = (avgLoss*(period-1) + loss)/period;
+        rsi[i] = avgLoss===0 ? 100 : 100 - (100/(1 + (avgGain/avgLoss)));
+      }
+      return rsi;
+    }
+
+    function calcMACD(values, fast=12, slow=26, signal=9) {
+      const emaFast = calcEMA(values, fast);
+      const emaSlow = calcEMA(values, slow);
+      const macd = values.map((_,i)=> (emaFast[i]!=null && emaSlow[i]!=null) ? emaFast[i]-emaSlow[i] : null);
+      const sig = calcEMA(macd.map(v=> v==null? 0 : v), signal).map((v,i)=> macd[i]==null? null : v);
+      const hist = macd.map((v,i)=> (v!=null && sig[i]!=null) ? v - sig[i] : null);
+      return { macd, signal: sig, hist };
+    }
+
+    function calcATR(klines, period=14) {
+      const atr = new Array(klines.length).fill(null);
+      const trs = [];
+      for (let i=0; i<klines.length; i++) {
+        const k = klines[i];
+        const prevClose = i>0 ? klines[i-1].close : k.close;
+        const tr = Math.max(k.high-k.low, Math.abs(k.high-prevClose), Math.abs(k.low-prevClose));
+        trs.push(tr);
+        if (i===period-1) {
+          atr[i] = trs.reduce((a,b)=>a+b,0)/period;
+        } else if (i>=period) {
+          atr[i] = (atr[i-1]*(period-1) + tr)/period;
+        }
+      }
+      return atr;
+    }
+
+    // =====================
+    // Data Fetch & WS
+    // =====================
+    async function loadHistory() {
+      const url = `https://api.binance.com/api/v3/klines?symbol=${state.symbol}&interval=${state.interval}&limit=500`;
+      const res = await fetch(url);
+      const data = await res.json();
+      state.klines = data.map(k=> ({
+        time: k[0], open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5]
+      }));
+      setAllData();
+    }
+
+    function startWS() {
+      stopWS();
+      const stream = `${state.symbol.toLowerCase()}@kline_${state.interval}`;
+      state.ws = new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
+      state.ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (!msg.k) return;
+        const k = msg.k; // kline
+        const t = k.t; // open time
+        const i = state.klines.findIndex(x => x.time === t);
+        const cur = { time: t, open: +k.o, high: +k.h, low: +k.l, close: +k.c, volume: +k.v };
+        if (i>=0) state.klines[i] = cur; else state.klines.push(cur);
+        setAllData();
+      }
+      state.ws.onopen = ()=> toast('WS bağlı');
+      state.ws.onclose = ()=> toast('WS kapandı');
+    }
+    function stopWS() { if (state.ws) { try{ state.ws.close(); }catch{} state.ws = null; } }
+
+    // =====================
+    // Indicator Cards & Analysis
+    // =====================
+    function renderIndicatorCards() {
+      const i = state.indicators; if (!i || !i.close) return;
+      const trend = i.close > i.ema200 ? 'YUKARI' : 'AŞAĞI';
+      const emaCross = i.ema9 && i.ema21 ? (i.ema9 > i.ema21 ? 'Bullish 9>21' : 'Bearish 9<21') : '-';
+      const rsiState = i.rsi ? (i.rsi>70?'Aşırı Alım': i.rsi<30? 'Aşırı Satım':'Nötr') : '-';
+      const macdState = (i.macd!=null && i.macdSignal!=null) ? (i.macd>i.macdSignal? 'Bullish':'Bearish') : '-';
+      const cards = [
+        { k:'Fiyat', v: fmt(i.close) },
+        { k:'Trend (EMA200)', v: trend },
+        { k:'EMA9/21', v: emaCross },
+        { k:'EMA50', v: fmt(i.ema50||0) },
+        { k:'RSI(14)', v: `${fmt(i.rsi||0,1)} • ${rsiState}` },
+        { k:'MACD', v: macdState },
+        { k:'ATR(14)', v: fmt(i.atr||0, 4) },
+        { k:'Zaman', v: dayjs(i.time*1000).format('HH:mm DD.MM') },
+      ];
+      $('#indicators').innerHTML = cards.map(c=> `
+        <div class="rounded-xl bg-black/30 p-3">
+          <div class="text-xs opacity-70">${c.k}</div>
+          <div class="font-semibold">${c.v}</div>
+        </div>
+      `).join('');
+    }
+
+    function scoreAndPlan() {
+      const i = state.indicators; const kls = state.klines; if (!i || !i.close) return null;
+      let score = 0;
+      if (i.close > i.ema200) score++; else score--;
+      if (i.ema9!=null && i.ema21!=null) score += (i.ema9>i.ema21? 1: -1);
+      if (i.macd!=null && i.macdSignal!=null) score += (i.macd>i.macdSignal? 1: -1);
+      if (i.rsi!=null) score += (i.rsi>60? 1: i.rsi<40? -1: 0);
+
+      const dir = score>=0? 'LONG':'SHORT';
+      const prob = Math.min(85, Math.max(55, 50 + Math.round(Math.abs(score)*10)));
+      // Entry near EMA21 pullback
+      const entry = i.ema21 ? i.ema21 : i.close;
+      const atr = i.atr || (i.close*0.003);
+      const sl = dir==='LONG'? entry - atr*1.2 : entry + atr*1.2;
+      const tp1 = dir==='LONG'? entry + atr*1.2 : entry - atr*1.2;
+      const tp2 = dir==='LONG'? entry + atr*2.4 : entry - atr*2.4;
+      const rr = (Math.abs(tp1-entry)/Math.abs(entry-sl)).toFixed(2);
+
+      return { dir, prob, entry, sl, tp1, tp2, rr, score };
+    }
+
+    function buildAnalysisText() {
+      const i = state.indicators; if (!i || !i.close) return 'Veri yok';
+      const plan = scoreAndPlan();
+      const lines = [];
+      lines.push(`📌 GÜNLÜK PROFESYONEL SCALPING ANALİZİ`);
+      lines.push(`Sembol: ${state.symbol} | Zaman: ${state.interval}`);
+      lines.push(`Fiyat: ${fmt(i.close)} | EMA9:${fmt(i.ema9||0)} • EMA21:${fmt(i.ema21||0)} • EMA50:${fmt(i.ema50||0)} • EMA200:${fmt(i.ema200||0)}`);
+      lines.push(`RSI14:${fmt(i.rsi||0,1)} | MACD:${fmt(i.macd||0,3)} / Sinyal:${fmt(i.macdSignal||0,3)} | ATR14:${fmt(i.atr||0,4)}`);
+      lines.push(`Trend: ${i.close>i.ema200? 'EMA200 üstü (yukarı)':'EMA200 altı (aşağı)'} | 9/21: ${(i.ema9>i.ema21)?'bullish':'bearish'}`);
+      if (plan) {
+        lines.push(`\n🎯 ÖNERİLEN POZİSYON: ${plan.dir} • Olasılık: %${plan.prob}`);
+        lines.push(`Giriş: ${fmt(plan.entry)} | SL: ${fmt(plan.sl)} | TP1: ${fmt(plan.tp1)} | TP2: ${fmt(plan.tp2)} | R/R: ${plan.rr}`);
+        lines.push(`Mantık: Trend + 9/21 + MACD + RSI konfluansı. Giriş, EMA21 geri çekilmesi esas alınarak hesaplandı. SL ≈ 1.2×ATR, TP1=1R, TP2=2R.`);
+      }
+      lines.push(`\n⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.`);
+      return lines.join('\n');
+    }
+
+    // =====================
+    // Chat
+    // =====================
+    function addMsg(role, content) {
+      const wrap = document.createElement('div');
+      wrap.className = `p-3 rounded-xl ${role==='assistant'? 'msg-ai' : 'msg-me'}`;
+      wrap.innerHTML = `<div class="text-[10px] opacity-60 mb-1">${role==='assistant'?'Asistan':'Sen'}</div><div class="whitespace-pre-wrap text-sm">${content}</div>`;
+      $('#chat').appendChild(wrap);
+      $('#chat').scrollTop = $('#chat').scrollHeight;
+    }
+
+    function getChatContext() {
+      const sys = state.systemPrompt && state.systemPrompt.trim().length>0 ? state.systemPrompt : $('#systemPrompt').value;
+      return [
+        { role:'system', content: sys },
+        { role:'user', content: `Seninle sitede konuşuyorum. Sembol: ${state.symbol}, Zaman: ${state.interval}. Son indikatörler: ${JSON.stringify(state.indicators)}. Net scalp önerisi ver.` }
+      ];
+    }
+
+    async function streamChat(messages) {
+      const key = state.key || $('#apiKey').value;
+      if (!key) { toast('Önce Ayarlar > API Key gir'); return; }
+      const model = state.model || $('#model').value;
+      $('#modelName').textContent = model;
+
+      addMsg('user', messages[messages.length-1].content);
+      const holder = document.createElement('div');
+      holder.className = 'p-3 rounded-xl msg-ai';
+      holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`;
+      $('#chat').appendChild(holder);
+      $('#chat').scrollTop = $('#chat').scrollHeight;
+      const out = holder.querySelector('#streaming');
+
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          stream: true,
+          messages
+        })
+      });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false; let acc = '';
+      while (!done) {
+        const { value, done: d } = await reader.read();
+        done = d;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || !line.startsWith('data:')) continue;
+          const data = line.replace('data:','').trim();
+          if (data === '[DONE]') { done = true; break; }
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content || '';
+            if (delta) { acc += delta; out.textContent = acc; }
+          } catch {}
+        }
+      }
+    }
+
+    async function sendMessageFromInput() {
+      const p = $('#prompt');
+      const text = p.value.trim();
+      if (!text) return;
+      p.value='';
+      const msgs = getChatContext();
+      msgs.push({ role:'user', content: text });
+      streamChat(msgs);
+    }
+
+    async function sendAnalysisToChat() {
+      const text = buildAnalysisText();
+      const msgs = getChatContext();
+      msgs.push({ role:'user', content: text + '\n\nBuna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' });
+      streamChat(msgs);
+    }
+
+    async function sendImageToChat(dataUrl, extra='Bu grafiği analiz et ve scalp planı çıkar.') {
+      const key = state.key || $('#apiKey').value; if (!key) { toast('API key gir'); return; }
+      const model = state.model || $('#model').value;
+      $('#modelName').textContent = model;
+
+      addMsg('user', '[Grafik görseli gönderildi] ' + extra);
+      const holder = document.createElement('div');
+      holder.className = 'p-3 rounded-xl msg-ai';
+      holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`;
+      $('#chat').appendChild(holder);
+      const out = holder.querySelector('#streaming');
+
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          stream: true,
+          messages: [
+            { role:'system', content: state.systemPrompt || $('#systemPrompt').value },
+            { role:'user', content: [
+              { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` },
+              { type:'image_url', image_url: { url: dataUrl } }
+            ]}
+          ]
+        })
+      });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false; let acc = '';
+      while (!done) {
+        const { value, done: d } = await reader.read();
+        done = d;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || !line.startsWith('data:')) continue;
+          const data = line.replace('data:','').trim();
+          if (data === '[DONE]') { done = true; break; }
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content || '';
+            if (delta) { acc += delta; out.textContent = acc; }
+          } catch {}
+        }
+      }
+    }
+
+    // =====================
+    // Screenshot current chart and send
+    // =====================
+    function chartToDataUrl() {
+      // lightweight-charts draws a canvas; take the first canvas in price chart
+      const canvas = $('#priceChart').querySelector('canvas');
+      if (!canvas) { toast('Canvas bulunamadı'); return null; }
+      return canvas.toDataURL('image/png');
+    }
+
+    // =====================
+    // Uploads
+    // =====================
+    $('#fileInput').addEventListener('change', (e)=>{
+      const files = e.target.files || [];
+      for (const f of files) {
+        const reader = new FileReader();
+        reader.onload = ()=> addUpload(reader.result);
+        reader.readAsDataURL(f);
+      }
+      e.target.value = '';
+    });
+
+    function addUpload(dataUrl) {
+      const card = document.createElement('div');
+      card.className = 'rounded-xl overflow-hidden bg-black/30 border border-white/10';
+      card.innerHTML = `
+        <img src="${dataUrl}" class="w-full h-28 object-cover"/>
+        <div class="p-2 flex gap-2">
+          <button class="px-2 py-1 rounded-lg bg-accent/20 hover:bg-accent/30 text-xs">Analiz Et</button>
+          <button class="px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">Sohbete Gönder</button>
+        </div>
+      `;
+      const [btnA, btnB] = card.querySelectorAll('button');
+      btnA.onclick = ()=> sendImageToChat(dataUrl, 'Yüklediğim görsel için net scalp analizi yaz.');
+      btnB.onclick = ()=> sendImageToChat(dataUrl, 'Bu görseli yorumla, hataları ve fırsatları çıkar.');
+      $('#uploads').prepend(card);
+    }
+
+    // =====================
+    // TradingView Widget (opsiyonel)
+    // =====================
+    function loadTradingView(symbol='CRYPTOCAP:TOTAL2') {
+      // Hidden by default; show when symbol is not Binance spot format
+      $('#tv-wrapper').style.display = 'block';
+      if (!window.TVScriptLoaded) {
+        const s = document.createElement('script');
+        s.src = 'https://s3.tradingview.com/tv.js';
+        s.onload = ()=> { window.TVScriptLoaded = true; renderTV(symbol); };
+        document.body.appendChild(s);
+      } else {
+        renderTV(symbol);
+      }
+    }
+
+    function renderTV(symbol) {
+      $('#tv-container').innerHTML = '';
+      // eslint-disable-next-line no-undef
+      new TradingView.widget({
+        autosize: true,
+        symbol,
+        interval: '5',
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'tr',
+        toolbar_bg: '#0b1220',
+        enable_publishing: false,
+        container_id: 'tv-container'
+      });
+    }
+
+    // =====================
+    // Events
+    // =====================
+    function refreshTitle() {
+      $('#title').textContent = `${state.symbol} • ${state.interval}`;
+      $('#infoSymbol').textContent = state.symbol;
+      $('#infoInterval').textContent = state.interval;
+    }
+
+    async function reloadAll() {
+      refreshTitle();
+      $('#tv-wrapper').style.display = 'none';
+      await loadHistory();
+    }
+
+    $('#btnStart').onclick = ()=> { startWS(); };
+    $('#btnStop').onclick = ()=> { stopWS(); };
+
+    $('#btnAutoAnalyze').onclick = ()=> { $('#analysisText').textContent = buildAnalysisText(); };
+    $('#btnPlan').onclick = ()=> {
+      const p = scoreAndPlan();
+      if (!p) return;
+      const txt = `Yön: ${p.dir} • Olasılık: %${p.prob}\nGiriş: ${fmt(p.entry)}\nStop: ${fmt(p.sl)}\nTP1: ${fmt(p.tp1)}\nTP2: ${fmt(p.tp2)}\nRisk/Ödül: ${p.rr}`;
+      $('#analysisText').textContent = ( $('#analysisText').textContent + '\n\n' + txt ).trim();
+    };
+    $('#btnSendToChat').onclick = ()=> sendAnalysisToChat();
+
+    $('#btnSnap').onclick = ()=> {
+      const dataUrl = chartToDataUrl();
+      if (dataUrl) sendImageToChat(dataUrl, 'Bu canlı grafiğin son hali. Net scalp planı ver.');
+    };
+
+    $('#btnSend').onclick = sendMessageFromInput;
+    $('#prompt').addEventListener('keydown', (e)=>{ if (e.key==='Enter') sendMessageFromInput(); });
+
+    $('#btnTemplate').onclick = ()=>{
+      $('#prompt').value = `📌 GÜNLÜK PROFESYONEL SCALPING ANALİZİ\n⏱️ ${state.interval} | ${state.symbol}\n\n❓ GENEL ANALİZ\nPozisyon yönü net? Neden?\nGiriş seviyesi? Koşullar?\nStop & Hedef (net fiyat)\n\n🔎 TEKNİK\nEMA(9/21/50/200)\nRSI(14) — uyumsuzluk var mı?\nMACD — momentum?\nATR(14) — SL/TP hesapla\nLikidite & Yapı — kırılım/breaker/OB varsa yaz`;
+      $('#prompt').focus();
+    };
+
+    $('#btnSettings').onclick = ()=> settingsModal.showModal();
+    $('#btnSaveSettings').onclick = ()=>{
+      const key = $('#apiKey').value.trim();
+      const model = $('#model').value;
+      const sys = $('#systemPrompt').value.trim();
+      const defSym = $('#defaultSymbol').value.trim().toUpperCase() || 'BTCUSDT';
+      if (key) localStorage.setItem('cg_api_key', key);
+      localStorage.setItem('cg_model', model);
+      localStorage.setItem('cg_sys', sys);
+      state.key = key; state.model = model; state.systemPrompt = sys;
+      $('#symbol').value = defSym; state.symbol = defSym;
+      settingsModal.close(); toast('Ayarlar kaydedildi'); reloadAll();
+    };
+
+    $$('#charts, #priceChart, #rsiChart, #macdChart').forEach(() =>{});
+
+    // symbol/interval changes
+    $('#symbol').addEventListener('change', async (e)=>{
+      state.symbol = e.target.value.toUpperCase();
+      await reloadAll();
+    });
+    $('#interval').addEventListener('change', async (e)=>{
+      state.interval = e.target.value; await reloadAll();
+    });
+    $$('.quick').forEach(b=> b.onclick = async ()=>{
+      const s = b.getAttribute('data-s');
+      $('#symbol').value = s; state.symbol = s; await reloadAll();
+    });
+
+    // =====================
+    // Boot
+    // =====================
+    (async function boot(){
+      initCharts();
+      // restore settings
+      if (state.key) $('#apiKey').value = state.key;
+      if (state.model) $('#model').value = state.model;
+      if (!state.systemPrompt) state.systemPrompt = $('#systemPrompt').value; else $('#systemPrompt').value = state.systemPrompt;
+      const savedSym = localStorage.getItem('cg_defsym');
+      if (savedSym) { state.symbol = savedSym; $('#symbol').value = savedSym; }
+      await reloadAll();
+      addMsg('assistant', 'Hazırım! Sembol ve zamanı seç, canlı grafiği başlat. Analizleri otomatik yazdırabilir veya benimle konuşarak net plan isteyebilirsin.');
+    })();
+  </script>
 </body>
 </html>
