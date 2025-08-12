@@ -141,7 +141,7 @@
             <input id="prompt" class="flex-1 px-3 py-2 rounded-xl bg-card outline-none" placeholder="Buradan konuş – örn: BTC 5m için scalp planı yaz" />
             <button id="btnSend" class="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Gönder</button>
           </div>
-          <div class="mt-2 text-[10px] opacity-60">Not: Yayına alacaksan, <b>Ayarlar</b> kısmından kendi OpenAI API anahtarını gir. Anahtar tarayıcıda saklanır (localStorage).</div>
+          <div class="mt-2 text-[10px] opacity-60">Not: Yayına alacaksan, <b>Ayarlar</b> kısmından <b>Worker URL</b> ve <b>Proxy App Key</b> gir. OpenAI anahtarını frontend'e koyma.</div>
         </div>
       </aside>
     </main>
@@ -158,8 +158,12 @@
     </div>
     <div class="p-4 space-y-4">
       <div>
-        <label class="block text-xs opacity-70 mb-1">OpenAI API Key (tarayıcıda saklanır)</label>
-        <input id="apiKey" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="sk-..." />
+        <label class="block text-xs opacity-70 mb-1">Proxy App Key (tarayıcıda saklanır)</label>
+        <input id="apiKey" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="coingame-app-key" />
+        <div class="mt-3">
+          <label class="block text-xs opacity-70 mb-1">Worker URL</label>
+          <input id="workerUrl" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="https://coingame-proxy.gokhanv16kocak.workers.dev" />
+        </div>
       </div>
       <div class="grid md:grid-cols-2 gap-3">
         <div>
@@ -197,7 +201,8 @@
       ws: null,
       klines: [], // {time, open, high, low, close, volume}
       indicators: {},
-      key: localStorage.getItem('cg_api_key') || '',
+      key: localStorage.getItem('cg_app_key') || '',
+      workerUrl: localStorage.getItem('cg_worker_url') || 'https://coingame-proxy.gokhanv16kocak.workers.dev',
       model: localStorage.getItem('cg_model') || 'gpt-4o-mini',
       systemPrompt: localStorage.getItem('cg_sys') || '',
     };
@@ -519,10 +524,10 @@
       $('#chat').scrollTop = $('#chat').scrollHeight;
       const out = holder.querySelector('#streaming');
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch('${state.workerUrl}/v1/chat/completions', {
         method:'POST',
         headers: {
-          'Authorization': `Bearer ${key}`,
+          'X-APP-KEY': key,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -584,10 +589,10 @@
       $('#chat').appendChild(holder);
       const out = holder.querySelector('#streaming');
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch('${state.workerUrl}/v1/chat/completions', {
         method:'POST',
         headers: {
-          'Authorization': `Bearer ${key}`,
+          'X-APP-KEY': key,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -744,10 +749,12 @@
       const model = $('#model').value;
       const sys = $('#systemPrompt').value.trim();
       const defSym = $('#defaultSymbol').value.trim().toUpperCase() || 'BTCUSDT';
-      if (key) localStorage.setItem('cg_api_key', key);
+      const workerUrl = $('#workerUrl').value.trim();
+      if (key) localStorage.setItem('cg_app_key', key);
+      if (workerUrl) localStorage.setItem('cg_worker_url', workerUrl);
       localStorage.setItem('cg_model', model);
       localStorage.setItem('cg_sys', sys);
-      state.key = key; state.model = model; state.systemPrompt = sys;
+      state.key = key; state.model = model; state.systemPrompt = sys; state.workerUrl = workerUrl || state.workerUrl;
       $('#symbol').value = defSym; state.symbol = defSym;
       settingsModal.close(); toast('Ayarlar kaydedildi'); reloadAll();
     };
@@ -774,6 +781,7 @@
       initCharts();
       // restore settings
       if (state.key) $('#apiKey').value = state.key;
+      if (state.workerUrl) $('#workerUrl').value = state.workerUrl;
       if (state.model) $('#model').value = state.model;
       if (!state.systemPrompt) state.systemPrompt = $('#systemPrompt').value; else $('#systemPrompt').value = state.systemPrompt;
       const savedSym = localStorage.getItem('cg_defsym');
