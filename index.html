@@ -209,7 +209,6 @@
 
     const fmt = (n, d=2) => Number(n).toLocaleString('tr-TR', { minimumFractionDigits:d, maximumFractionDigits:d });
     const fmtPlain = (n, d=2) => Number(n).toFixed(d);
-    const fmtPlain = (n, d=2) => Number(n).toFixed(d);
 
     function toast(msg) {
       const el = document.createElement('div');
@@ -222,12 +221,12 @@
     // Helper: extract symbol from free text (btc/eth/sol/avax/sui/doge)
     function parseSymbolFromText(text='') {
       const t = String(text).toLowerCase();
-      if (/\bbtc(usdt|usd)?\b/.test(t) || /\bbitcoin\b/.test(t)) return 'BTCUSDT';
-      if (/\beth(usdt|usd)?\b/.test(t) || /\bethereum\b/.test(t)) return 'ETHUSDT';
-      if (/\bsol(usdt|usd)?\b/.test(t) || /\bsolana\b/.test(t)) return 'SOLUSDT';
-      if (/\bavax(usdt|usd)?\b/.test(t)/) return 'AVAXUSDT';
-      if (/\bsui(usdt|usd)?\b/.test(t)) return 'SUIUSDT';
-      if (/\bdoge(usdt|usd)?\b/.test(t) || /\bdogecoin\b/.test(t)) return 'DOGEUSDT';
+      if (/btc(usdt|usd)?/.test(t) || /bitcoin/.test(t)) return 'BTCUSDT';
+      if (/eth(usdt|usd)?/.test(t) || /ethereum/.test(t)) return 'ETHUSDT';
+      if (/sol(usdt|usd)?/.test(t) || /solana/.test(t)) return 'SOLUSDT';
+      if (/avax(usdt|usd)?/.test(t)) return 'AVAXUSDT';
+      if (/sui(usdt|usd)?/.test(t)) return 'SUIUSDT';
+      if (/doge(usdt|usd)?/.test(t) || /dogecoin/.test(t)) return 'DOGEUSDT';
       return null;
     }
 
@@ -259,12 +258,12 @@
     // Helper: extract symbol from free text (btc/eth/sol/avax/sui/doge)
     function parseSymbolFromText(text='') {
       const t = String(text).toLowerCase();
-      if (/\bbtc(usdt|usd)?\b/.test(t) || /\bbitcoin\b/.test(t)) return 'BTCUSDT';
-      if (/\beth(usdt|usd)?\b/.test(t) || /\bethereum\b/.test(t)) return 'ETHUSDT';
-      if (/\bsol(usdt|usd)?\b/.test(t) || /\bsolana\b/.test(t)) return 'SOLUSDT';
-      if (/\bavax(usdt|usd)?\b/.test(t)/) return 'AVAXUSDT';
-      if (/\bsui(usdt|usd)?\b/.test(t)) return 'SUIUSDT';
-      if (/\bdoge(usdt|usd)?\b/.test(t) || /\bdogecoin\b/.test(t)) return 'DOGEUSDT';
+      if (/btc(usdt|usd)?/.test(t) || /bitcoin/.test(t)) return 'BTCUSDT';
+      if (/eth(usdt|usd)?/.test(t) || /ethereum/.test(t)) return 'ETHUSDT';
+      if (/sol(usdt|usd)?/.test(t) || /solana/.test(t)) return 'SOLUSDT';
+      if (/avax(usdt|usd)?/.test(t)) return 'AVAXUSDT';
+      if (/sui(usdt|usd)?/.test(t)) return 'SUIUSDT';
+      if (/doge(usdt|usd)?/.test(t) || /dogecoin/.test(t)) return 'DOGEUSDT';
       return null;
     }
 
@@ -587,22 +586,24 @@
     function getChatContext() {
       const sys = state.systemPrompt && state.systemPrompt.trim().length>0 ? state.systemPrompt : $('#systemPrompt').value;
       const snap = snapshotString();
-      const rules = `KURALLAR:\n- Sadece SNAPSHOT verilerini kullan, yeni fiyat uydurma.\n- Cevap Türkçe ve net olsun.\n- Çıktıda sembol: ${state.symbol}, interval: ${state.interval}.\n- Giriş/SL/TP fiyatları iki ondalıkla yaz.\n- Olasılığı % olarak ver.\n- SNAPSHOT dışı veri kullanma.\n- Kullanıcı başka sembol yazsa bile SNAPSHOT sembolü esas. (Ben ayrı güncelle diye komut gelirse sembolü değiştiririm.)`;
+      const rules = [
+        'KURALLAR:',
+        '- Sadece SNAPSHOT verilerini kullan, yeni fiyat uydurma.',
+        '- Cevap Türkçe ve net olsun.',
+        `- Çıktıda sembol: ${state.symbol}, interval: ${state.interval}.`,
+        '- Giriş/SL/TP fiyatları iki ondalıkla yaz.',
+        '- Olasılığı % olarak ver.',
+        '- SNAPSHOT dışı veri kullanma.'
+      ].join('
+');
       return [
         { role:'system', content: sys },
         { role:'system', content: 'SNAPSHOT: ' + snap },
         { role:'system', content: rules }
-      ];
-    }, interval: ${state.interval}.\n- Giriş/SL/TP fiyatları iki ondalıkla yaz.\n- Olasılığı % olarak ver.\n- SNAPSHOT dışı veri kullanma.\n- Kullanıcı başka sembol yazsa bile SNAPSHOT sembolü esas. (Ben ayrı güncelle diye komut gelirse sembolü değiştiririm.)`;
-      return [
-        { role:'system', content: sys },
-        { role:'system', content: 'SNAPSHOT: ' + snap },
-        { role:'system', content: rules }
-      ];
-    },
-        { role:'user', content: `Seninle sitede konuşuyorum. Sembol: ${state.symbol}, Zaman: ${state.interval}. Son indikatörler: ${JSON.stringify(state.indicators)}. Net scalp önerisi ver.` }
       ];
     }
+
+
 
     async function streamChat(messages) {
       const key = state.key || $('#apiKey').value;
@@ -659,7 +660,6 @@
       const text = p.value.trim();
       if (!text) return;
       p.value='';
-      // Otomatik sembol algılama
       const maybe = parseSymbolFromText(text);
       if (maybe && maybe !== state.symbol) {
         $('#symbol').value = maybe; state.symbol = maybe; await reloadAll();
@@ -668,14 +668,8 @@
       const msgs = getChatContext();
       msgs.push({ role:'user', content: text });
       streamChat(msgs);
-    } olarak güncellendi, canlı veriyi aldım.`);
-      }
-      const msgs = getChatContext();
-      msgs.push({ role:'user', content: text });
-      streamChat(msgs);
-    });
-      streamChat(msgs);
     }
+
 
     async function sendAnalysisToChat() {
       const text = buildAnalysisText();
@@ -724,57 +718,10 @@
       let done = false; let acc = '';
       while (!done) {
         const { value, done: d } = await reader.read();
-        done = d
-      const model = state.model || $('#model').value;
-      $('#modelName').textContent = model;
-
-      const snap = snapshotString();
-      addMsg('user', '[Grafik görseli gönderildi] ' + extra);
-      const holder = document.createElement('div');
-      holder.className = 'p-3 rounded-xl msg-ai';
-      holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`;
-      $('#chat').appendChild(holder);
-      const out = holder.querySelector('#streaming');
-
-      const res = await fetch(`${state
-      const model = state.model || $('#model').value;
-      $('#modelName').textContent = model;
-
-      addMsg('user', '[Grafik görseli gönderildi] ' + extra);
-      const holder = document.createElement('div');
-      holder.className = 'p-3 rounded-xl msg-ai';
-      holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`;
-      $('#chat').appendChild(holder);
-      const out = holder.querySelector('#streaming');
-
-      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, {
-        method:'POST',
-        headers: {
-          'X-APP-KEY': key,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model,
-          stream: true,
-          messages: [
-            { role:'system', content: state.systemPrompt || $('#systemPrompt').value },
-            { role:'user', content: [
-              { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` },
-              { type:'image_url', image_url: { url: dataUrl } }
-            ]}
-          ]
-        })
-      });
-      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let done = false; let acc = '';
-      while (!done) {
-        const { value, done: d } = await reader.read();
         done = d;
         const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        const lines = chunk.split('
+');
         for (let line of lines) {
           line = line.trim();
           if (!line || !line.startsWith('data:')) continue;
@@ -788,6 +735,10 @@
         }
       }
     }
+
+      }
+    }
+
 
     // =====================
     // Screenshot current chart and send
