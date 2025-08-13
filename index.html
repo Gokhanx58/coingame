@@ -501,6 +501,29 @@
 ⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
       return L.join('
 ');
+    } | Zaman: ${state.interval}`);
+      L.push(`Fiyat: ${fmt(i.close)} | EMA9:${fmt(i.ema9||0)} • EMA21:${fmt(i.ema21||0)} • EMA50:${fmt(i.ema50||0)} • EMA200:${fmt(i.ema200||0)}`);
+      L.push(`RSI14:${Number(i.rsi||0).toFixed(1)} | MACD:${Number(i.macd||0).toFixed(3)} / Sinyal:${Number(i.macdSignal||0).toFixed(3)} | ATR14:${Number(i.atr||0).toFixed(4)}`);
+      L.push(`Trend: ${i.close>i.ema200? 'EMA200 üstü (yukarı)':'EMA200 altı (aşağı)'} | 9/21: ${(i.ema9>i.ema21)?'bullish':'bearish'}`);
+      if (p) {
+        L.push(`\n🎯 ÖNERİLEN POZİSYON: ${p.dir} • Olasılık: %${p.prob}`);
+        L.push(`Giriş: ${fmt(p.entry)} | SL: ${fmt(p.sl)} | TP1: ${fmt(p.tp1)} | TP2: ${fmt(p.tp2)} | R/R: ${p.rr}`);
+      }
+      L.push('\n⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
+      return L.join('\n');
+    } | Zaman: ${state.interval}`);
+      L.push(`Fiyat: ${fmt(i.close)} | EMA9:${fmt(i.ema9||0)} • EMA21:${fmt(i.ema21||0)} • EMA50:${fmt(i.ema50||0)} • EMA200:${fmt(i.ema200||0)}`);
+      L.push(`RSI14:${Number(i.rsi||0).toFixed(1)} | MACD:${Number(i.macd||0).toFixed(3)} / Sinyal:${Number(i.macdSignal||0).toFixed(3)} | ATR14:${Number(i.atr||0).toFixed(4)}`);
+      L.push(`Trend: ${i.close>i.ema200? 'EMA200 üstü (yukarı)':'EMA200 altı (aşağı)'} | 9/21: ${(i.ema9>i.ema21)?'bullish':'bearish'}`);
+      if (p) {
+        L.push(`
+🎯 ÖNERİLEN POZİSYON: ${p.dir} • Olasılık: %${p.prob}`);
+        L.push(`Giriş: ${fmt(p.entry)} | SL: ${fmt(p.sl)} | TP1: ${fmt(p.tp1)} | TP2: ${fmt(p.tp2)} | R/R: ${p.rr}`);
+      }
+      L.push('
+⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
+      return L.join('
+');
     }
 
     // =====================
@@ -532,10 +555,78 @@
         { role:'system', content: 'SNAPSHOT: ' + snap },
         { role:'system', content: rules }
       ];
+    }, interval: ${state.interval}.`,
+        '- Giriş/SL/TP fiyatları iki ondalıkla yaz.',
+        '- Olasılığı % olarak ver.',
+        '- SNAPSHOT dışı veri kullanma.'
+      ].join('\n');
+      return [
+        { role:'system', content: sys },
+        { role:'system', content: 'SNAPSHOT: ' + snap },
+        { role:'system', content: rules }
+      ];
+    }, interval: ${state.interval}.`,
+        '- Giriş/SL/TP fiyatları iki ondalıkla yaz.',
+        '- Olasılığı % olarak ver.',
+        '- SNAPSHOT dışı veri kullanma.'
+      ].join('
+');
+      return [
+        { role:'system', content: sys },
+        { role:'system', content: 'SNAPSHOT: ' + snap },
+        { role:'system', content: rules }
+      ];
     }
 
     async function streamChat(messages){
       const key = state.key || $('#apiKey').value; if (!key) { toast('Önce Ayarlar > Proxy App Key gir'); return; }
+      const model = state.model || $('#model').value; $('#modelName').textContent = model;
+      addMsg('user', messages[messages.length-1].content);
+      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages }) });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
+      const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done = false; let acc='';
+      while (!done) {
+        const { value, done: d } = await reader.read(); done = d;
+        const chunk = decoder.decode(value, { stream:true });
+        const lines = chunk.split('
+');
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || !line.startsWith('data:')) continue;
+          const data = line.replace('data:','').trim();
+          if (data === '[DONE]') { done = true; break; }
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content || '';
+            if (delta) { acc += delta; out.textContent = acc; }
+          } catch {}
+        }
+      }
+    }
+      const model = state.model || $('#model').value; $('#modelName').textContent = model;
+      addMsg('user', messages[messages.length-1].content);
+      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages }) });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
+      const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done = false; let acc='';
+      while (!done) {
+        const { value, done: d } = await reader.read(); done = d;
+        const chunk = decoder.decode(value, { stream:true });
+        const lines = chunk.split('\n');
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || !line.startsWith('data:')) continue;
+          const data = line.replace('data:','').trim();
+          if (data === '[DONE]') { done = true; break; }
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content || '';
+            if (delta) { acc += delta; out.textContent = acc; }
+          } catch {}
+        }
+      }
+    }
       const model = state.model || $('#model').value; $('#modelName').textContent = model;
       addMsg('user', messages[messages.length-1].content);
       const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
@@ -552,12 +643,48 @@
       const msgs = getChatContext(); msgs.push({ role:'user', content: text }); streamChat(msgs);
     }
 
-    async function sendAnalysisToChat(){ const text = buildAnalysisText(); const msgs = getChatContext(); msgs.push({ role:'user', content: text + '
+    async function sendAnalysisToChat(){
+      const text = buildAnalysisText();
+      const msgs = getChatContext();
+      msgs.push({ role:'user', content: text + '
 
-Buna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' }); streamChat(msgs); }
+Buna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' });
+      streamChat(msgs);
+    });
+      streamChat(msgs);
+    }); streamChat(msgs); }
 
     async function sendImageToChat(dataUrl, extra='Bu grafiği analiz et ve scalp planı çıkar.'){
       const key = state.key || $('#apiKey').value; if (!key) { toast('API key gir'); return; }
+      const model = state.model || $('#model').value; $('#modelName').textContent = model;
+      const snap = snapshotString(); addMsg('user', '[Grafik görseli gönderildi] ' + extra);
+      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class=\"text-[10px] opacity-60 mb-1\">Asistan</div><div class=\"whitespace-pre-wrap text-sm\" id=\"streaming\"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages: [ { role:'system', content: state.systemPrompt || $('#systemPrompt').value }, { role:'system', content: 'SNAPSHOT: ' + snap }, { role:'system', content: 'KURALLAR: Sadece SNAPSHOT’taki fiyat/indikatörleri kullan; sayı uydurma; Türkçe yaz; giriş/SL/TP iki ondalık; olasılığı % ver.' }, { role:'user', content: [ { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` }, { type:'image_url', image_url: { url: dataUrl } } ] } ] }) });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
+      const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done=false; let acc='';
+      while (!done) {
+        const { value, done: d } = await reader.read(); done = d;
+        const chunk = decoder.decode(value, { stream:true });
+        const lines = chunk.split('
+');
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || !line.startsWith('data:')) continue;
+          const data = line.replace('data:','').trim();
+          if (data==='[DONE]') { done=true; break; }
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content || '';
+            if (delta) { acc += delta; out.textContent = acc; }
+          } catch{}
+        }
+      }
+    }
+      const model = state.model || $('#model').value; $('#modelName').textContent = model;
+      const snap = snapshotString(); addMsg('user', '[Grafik görseli gönderildi] ' + extra);
+      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class=\"text-[10px] opacity-60 mb-1\">Asistan</div><div class=\"whitespace-pre-wrap text-sm\" id=\"streaming\"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
+      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages: [ { role:'system', content: state.systemPrompt || $('#systemPrompt').value }, { role:'system', content: 'SNAPSHOT: ' + snap }, { role:'system', content: 'KURALLAR: Sadece SNAPSHOT’taki fiyat/indikatörleri kullan; sayı uydurma; Türkçe yaz; giriş/SL/TP iki ondalık; olasılığı % ver.' }, { role:'user', content: [ { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` }, { type:'image_url', image_url: { url: dataUrl } } ] } ] }) });
+      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`;
       const model = state.model || $('#model').value; $('#modelName').textContent = model;
       const snap = snapshotString(); addMsg('user', '[Grafik görseli gönderildi] ' + extra);
       const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class=\"text-[10px] opacity-60 mb-1\">Asistan</div><div class=\"whitespace-pre-wrap text-sm\" id=\"streaming\"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
@@ -599,6 +726,13 @@ TP1: ${fmt(p.tp1)}
 TP2: ${fmt(p.tp2)}
 Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '
 
+' + txt).trim(); }; if (!p) return; const txt = `Yön: ${p.dir} • Olasılık: %${p.prob}
+Giriş: ${fmt(p.entry)}
+Stop: ${fmt(p.sl)}
+TP1: ${fmt(p.tp1)}
+TP2: ${fmt(p.tp2)}
+Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '
+
 ' + txt).trim(); };
     $('#btnSendToChat').onclick = ()=> sendAnalysisToChat();
     $('#btnSnap').onclick = ()=> { const dataUrl = chartToDataUrl(); if (dataUrl) sendImageToChat(dataUrl, 'Bu canlı grafiğin son hali. Net scalp planı ver.'); };
@@ -623,16 +757,3 @@ Likidite & Yapı — kırılım/breaker/OB varsa yaz`; $('#prompt').focus(); };
     $('#btnSaveSettings').onclick = ()=> { const key = $('#apiKey').value.trim(); const model = $('#model').value; const sys = $('#systemPrompt').value.trim(); const defSym = ($('#defaultSymbol').value.trim().toUpperCase() || 'BTCUSDT'); const workerUrl = $('#workerUrl').value.trim(); if (key) localStorage.setItem('cg_app_key', key); if (workerUrl) localStorage.setItem('cg_worker_url', workerUrl); localStorage.setItem('cg_model', model); localStorage.setItem('cg_sys', sys); state.key = key; state.model = model; state.systemPrompt = sys; state.workerUrl = workerUrl || state.workerUrl; $('#symbol').value = defSym; state.symbol = defSym; settingsModalEl.close(); toast('Ayarlar kaydedildi'); reloadAll(); };
 
     $('#symbol').addEventListener('change', async (e)=>{ state.symbol = e.target.value.toUpperCase(); await reloadAll(); });
-    $('#interval').addEventListener('change', async (e)=>{ state.interval = e.target.value; await reloadAll(); });
-    $$('.quick').forEach(b=> b.onclick = async ()=>{ const s = b.getAttribute('data-s'); $('#symbol').value = s; state.symbol = s; await reloadAll(); });
-
-    (async function boot(){
-      initCharts();
-      if (state.key) $('#apiKey').value = state.key; if (state.workerUrl) $('#workerUrl').value = state.workerUrl; if (state.model) $('#model').value = state.model; if (!state.systemPrompt) state.systemPrompt = $('#systemPrompt').value; else $('#systemPrompt').value = state.systemPrompt;
-      const savedSym = localStorage.getItem('cg_defsym'); if (savedSym) { state.symbol = savedSym; $('#symbol').value = savedSym; }
-      await reloadAll();
-      addMsg('assistant', 'Hazırım! Sembol ve zamanı seç, canlı grafiği başlat. Analizleri otomatik yazdırabilir veya benimle konuşarak net plan isteyebilirsin.');
-    })();
-  </script>
-</body>
-</html>
