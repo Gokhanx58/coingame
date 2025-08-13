@@ -17,7 +17,7 @@
   </script>
   <link rel="preconnect" href="https://unpkg.com"/>
   <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';document.head.appendChild(s)"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
   <style>
     html, body { height: 100%; background: #0b1220; }
@@ -197,6 +197,9 @@
       systemPrompt: localStorage.getItem('cg_sys') || '',
     };
 
+    // Cross-browser helper (avoid Array.prototype.at)
+    const lastVal = (arr) => (arr && arr.length ? arr[arr.length-1] : null);
+
     const fmt = (n, d=2) => Number(n).toLocaleString('tr-TR', { minimumFractionDigits:d, maximumFractionDigits:d });
 
     function toast(msg) {
@@ -220,7 +223,7 @@
 
     function buildSnapshot() {
       const i = state.indicators || {};
-      const last = state.klines.at(-1) || {};
+      const last = state.klines && state.klines.length ? state.klines[state.klines.length-1] : {}; 
       const num = (x)=> (typeof x === 'number' && isFinite(x)) ? x : 0;
       return {
         symbol: state.symbol,
@@ -326,12 +329,12 @@
 
       const atr = calcATR(state.klines, 14);
       state.indicators = {
-        ema9: ema9.at(-1), ema21: ema21.at(-1), ema50: ema50.at(-1), ema200: ema200.at(-1),
-        rsi: rsi.at(-1),
-        macd: macd.at(-1), macdSignal: signal.at(-1), macdHist: hist.at(-1),
-        atr: atr.at(-1),
-        close: closes.at(-1),
-        time: times.at(-1),
+        ema9: lastVal(ema9), ema21: lastVal(ema21), ema50: lastVal(ema50), ema200: lastVal(ema200),
+        rsi: lastVal(rsi),
+        macd: lastVal(macd), macdSignal: lastVal(signal), macdHist: lastVal(hist),
+        atr: lastVal(atr),
+        close: lastVal(closes),
+        time: lastVal(times),
       };
       renderIndicatorCards();
       priceChart.timeScale().fitContent();
