@@ -213,12 +213,12 @@
 
     function parseSymbolFromText(text='') {
       const t = String(text).toLowerCase();
-      if (/btc(usdt|usd)?/.test(t) || /bitcoin/.test(t)) return 'BTCUSDT';
-      if (/eth(usdt|usd)?/.test(t) || /ethereum/.test(t)) return 'ETHUSDT';
-      if (/sol(usdt|usd)?/.test(t) || /solana/.test(t)) return 'SOLUSDT';
-      if (/avax(usdt|usd)?/.test(t)) return 'AVAXUSDT';
-      if (/sui(usdt|usd)?/.test(t)) return 'SUIUSDT';
-      if (/doge(usdt|usd)?/.test(t) || /dogecoin/.test(t)) return 'DOGEUSDT';
+      if (/\bbtc(usdt|usd)?\b/.test(t) || /\bbitcoin\b/.test(t)) return 'BTCUSDT';
+      if (/\beth(usdt|usd)?\b/.test(t) || /\bethereum\b/.test(t)) return 'ETHUSDT';
+      if (/\bsol(usdt|usd)?\b/.test(t) || /\bsolana\b/.test(t)) return 'SOLUSDT';
+      if (/\bavax(usdt|usd)?\b/.test(t)) return 'AVAXUSDT';
+      if (/\bsui(usdt|usd)?\b/.test(t)) return 'SUIUSDT';
+      if (/\bdoge(usdt|usd)?\b/.test(t) || /\bdogecoin\b/.test(t)) return 'DOGEUSDT';
       return null;
     }
 
@@ -437,6 +437,7 @@
       state.ws.onclose = ()=> toast('WS kapandı');
     }
     function stopWS(){ if (state.ws) { try{ state.ws.close(); }catch{} state.ws=null; }
+}
 
     // =====================
     // Indicator Cards & Analysis
@@ -497,10 +498,8 @@
 🎯 ÖNERİLEN POZİSYON: ${p.dir} • Olasılık: %${p.prob}`);
         L.push(`Giriş: ${fmt(p.entry)} | SL: ${fmt(p.sl)} | TP1: ${fmt(p.tp1)} | TP2: ${fmt(p.tp2)} | R/R: ${p.rr}`);
       }
-      L.push('
-⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
-      return L.join('
-');
+      L.push('\n⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
+      return L.join('\n');
     }
 
     // =====================
@@ -525,8 +524,7 @@
         '- Giriş/SL/TP fiyatları iki ondalıkla yaz.',
         '- Olasılığı % olarak ver.',
         '- SNAPSHOT dışı veri kullanma.'
-      ].join('
-');
+      ].join('\n');
       return [
         { role:'system', content: sys },
         { role:'system', content: 'SNAPSHOT: ' + snap },
@@ -545,8 +543,7 @@
       while (!done) {
         const { value, done: d } = await reader.read(); done = d;
         const chunk = decoder.decode(value, { stream:true });
-        const lines = chunk.split('
-');
+        const lines = chunk.split('\n');
         for (let line of lines) {
           line = line.trim();
           if (!line || !line.startsWith('data:')) continue;
@@ -570,9 +567,7 @@
     async function sendAnalysisToChat(){
       const text = buildAnalysisText();
       const msgs = getChatContext();
-      msgs.push({ role:'user', content: text + '
-
-Buna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' });
+      msgs.push({ role:'user', content: text + '\n\nBuna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' });
       streamChat(msgs);
     }
 
@@ -587,8 +582,7 @@ Buna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ve
       while (!done) {
         const { value, done: d } = await reader.read(); done = d;
         const chunk = decoder.decode(value, { stream:true });
-        const lines = chunk.split('
-');
+        const lines = chunk.split('\n');
         for (let line of lines) {
           line = line.trim();
           if (!line || !line.startsWith('data:')) continue;
@@ -632,9 +626,7 @@ Giriş: ${fmt(p.entry)}
 Stop: ${fmt(p.sl)}
 TP1: ${fmt(p.tp1)}
 TP2: ${fmt(p.tp2)}
-Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '
-
-' + txt).trim(); };
+Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '\n\n' + txt).trim(); };
     $('#btnSendToChat').onclick = ()=> sendAnalysisToChat();
     $('#btnSnap').onclick = ()=> { const dataUrl = chartToDataUrl(); if (dataUrl) sendImageToChat(dataUrl, 'Bu canlı grafiğin son hali. Net scalp planı ver.'); };
 
