@@ -144,7 +144,7 @@
         <div class="text-sm opacity-70">Uygulama Ayarları</div>
         <div class="font-semibold">OpenAI, Stil ve Varsayılanlar</div>
       </div>
-      <button onclick="document.getElementById('settingsModal').close()" ...>
+      <button onclick="document.getElementById('settingsModal').close()" class="px-2 py-1 rounded-lg bg-white/10">Kapat</button>
     </div>
     <div class="p-4 space-y-4">
       <div>
@@ -497,8 +497,10 @@
 🎯 ÖNERİLEN POZİSYON: ${p.dir} • Olasılık: %${p.prob}`);
         L.push(`Giriş: ${fmt(p.entry)} | SL: ${fmt(p.sl)} | TP1: ${fmt(p.tp1)} | TP2: ${fmt(p.tp2)} | R/R: ${p.rr}`);
       }
-      L.push('\n⚙️ Not: ...'); Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
-      return L.join('\n');
+      L.push('
+⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
+      return L.join('
+');
     }
 
     // =====================
@@ -523,8 +525,8 @@
         '- Giriş/SL/TP fiyatları iki ondalıkla yaz.',
         '- Olasılığı % olarak ver.',
         '- SNAPSHOT dışı veri kullanma.'
-      ].join('\n');
-
+      ].join('
+');
       return [
         { role:'system', content: sys },
         { role:'system', content: 'SNAPSHOT: ' + snap },
@@ -540,8 +542,8 @@
       const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages }) });
       if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
       const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done = false; let acc='';
-      while (!done) { const { value, done: d } = await reader.read(); done = d; const chunk = decoder.decode(value, { stream:true }); const lines = chunk.split('\n')
- for (let line of lines) { line = line.trim(); if (!line || !line.startsWith('data:')) continue; const data = line.replace('data:','').trim(); if (data === '[DONE]') { done = true; break; } try { const json = JSON.parse(data); const delta = json.choices?.[0]?.delta?.content || ''; if (delta) { acc += delta; out.textContent = acc; } } catch {} } }
+      while (!done) { const { value, done: d } = await reader.read(); done = d; const chunk = decoder.decode(value, { stream:true }); const lines = chunk.split('
+'); for (let line of lines) { line = line.trim(); if (!line || !line.startsWith('data:')) continue; const data = line.replace('data:','').trim(); if (data === '[DONE]') { done = true; break; } try { const json = JSON.parse(data); const delta = json.choices?.[0]?.delta?.content || ''; if (delta) { acc += delta; out.textContent = acc; } } catch {} } }
     }
 
     async function sendMessageFromInput(){
@@ -550,7 +552,7 @@
       const msgs = getChatContext(); msgs.push({ role:'user', content: text }); streamChat(msgs);
     }
 
-    async function sendAnalysisToChat(){ const text = buildAnalysisText(); const msgs = getChatContext(); msgs.push({ role:'user', content: text + '\n\nBuna göre net işlem önerisini ...'
+    async function sendAnalysisToChat(){ const text = buildAnalysisText(); const msgs = getChatContext(); msgs.push({ role:'user', content: text + '
 
 Buna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' }); streamChat(msgs); }
 
@@ -558,7 +560,7 @@ Buna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ve
       const key = state.key || $('#apiKey').value; if (!key) { toast('API key gir'); return; }
       const model = state.model || $('#model').value; $('#modelName').textContent = model;
       const snap = snapshotString(); addMsg('user', '[Grafik görseli gönderildi] ' + extra);
-      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
+      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class=\"text-[10px] opacity-60 mb-1\">Asistan</div><div class=\"whitespace-pre-wrap text-sm\" id=\"streaming\"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
       const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages: [ { role:'system', content: state.systemPrompt || $('#systemPrompt').value }, { role:'system', content: 'SNAPSHOT: ' + snap }, { role:'system', content: 'KURALLAR: Sadece SNAPSHOT’taki fiyat/indikatörleri kullan; sayı uydurma; Türkçe yaz; giriş/SL/TP iki ondalık; olasılığı % ver.' }, { role:'user', content: [ { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` }, { type:'image_url', image_url: { url: dataUrl } } ] } ] }) });
       if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
       const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done=false; let acc='';
@@ -595,7 +597,7 @@ Giriş: ${fmt(p.entry)}
 Stop: ${fmt(p.sl)}
 TP1: ${fmt(p.tp1)}
 TP2: ${fmt(p.tp2)}
-Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '\n\n' + txt)'
+Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '
 
 ' + txt).trim(); };
     $('#btnSendToChat').onclick = ()=> sendAnalysisToChat();
