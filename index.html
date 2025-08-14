@@ -5,34 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CoinGame Pro – Canlı Analiz & Sohbet</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { bg: '#0b1220', card: '#121a2a', accent: '#4ade80', accent2: '#60a5fa' },
-          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.35)' }
-        }
-      }
-    }
-  </script>
+  <script>tailwind.config={theme:{extend:{colors:{bg:'#0b1220',card:'#121a2a',accent:'#4ade80',accent2:'#60a5fa'},boxShadow:{soft:'0 10px 30px rgba(0,0,0,.35)'}}}}</script>
   <link rel="preconnect" href="https://unpkg.com"/>
   <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
   <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';document.head.appendChild(s)"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
   <style>
-    html, body { height: 100%; background: #0b1220; }
-    .glass { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); backdrop-filter: blur(8px); }
-    .scroll-thin::-webkit-scrollbar { height: 6px; width: 6px; }
-    .scroll-thin::-webkit-scrollbar-thumb { background: #22314a; border-radius: 9999px; }
-    .msg-ai { background: rgba(96,165,250,.12); border-left: 2px solid #60a5fa }
-    .msg-me { background: rgba(74,222,128,.12); border-left: 2px solid #4ade80 }
-    #tv-wrapper { display: none; }
-    dialog::backdrop { background: rgba(0,0,0,.5); }
+    html,body{height:100%;background:#0b1220}
+    .glass{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));backdrop-filter:blur(8px)}
+    .scroll-thin::-webkit-scrollbar{height:6px;width:6px}
+    .scroll-thin::-webkit-scrollbar-thumb{background:#22314a;border-radius:9999px}
+    .msg-ai{background:rgba(96,165,250,.12);border-left:2px solid #60a5fa}
+    .msg-me{background:rgba(74,222,128,.12);border-left:2px solid #4ade80}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+    #tv-wrapper{display:none}
   </style>
 </head>
 <body class="h-full text-slate-200">
   <div class="h-full w-full grid grid-rows-[auto,1fr]">
-    <!-- Topbar -->
     <header class="glass shadow-soft sticky top-0 z-20">
       <div class="max-w-[1400px] mx-auto px-3 md:px-6 py-3 flex flex-col md:flex-row md:items-center gap-3">
         <div class="flex items-center gap-2">
@@ -41,21 +31,17 @@
         </div>
         <div class="flex flex-1 flex-wrap items-center gap-2 md:ml-6">
           <label class="text-xs opacity-70">Sembol</label>
-          <input id="symbol" class="px-3 py-2 rounded-xl bg-card outline-none focus:ring-2 ring-accent/40 w-28 uppercase" value="BTCUSDT" />
+          <input id="symbol" class="px-3 py-2 rounded-xl bg-card outline-none focus:ring-2 ring-accent/40 w-28 uppercase" value="BTCUSDT"/>
           <label class="text-xs opacity-70 ml-2">Zaman</label>
           <select id="interval" class="px-3 py-2 rounded-xl bg-card outline-none focus:ring-2 ring-accent/40">
-            <option value="1m">1m</option>
-            <option value="3m">3m</option>
-            <option value="5m" selected>5m</option>
-            <option value="15m">15m</option>
-            <option value="30m">30m</option>
-            <option value="1h">1h</option>
-            <option value="4h">4h</option>
+            <option value="1m">1m</option><option value="3m">3m</option><option value="5m" selected>5m</option>
+            <option value="15m">15m</option><option value="30m">30m</option><option value="1h">1h</option><option value="4h">4h</option>
           </select>
           <div class="flex gap-2 ml-2">
             <button id="btnStart" class="px-3 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Canlı Başlat</button>
             <button id="btnStop" class="px-3 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30">Durdur</button>
             <button id="btnSnap" class="px-3 py-2 rounded-xl bg-accent2/20 hover:bg-accent2/30">Grafiği Analize Yolla</button>
+            <button id="btnTV" class="px-3 py-2 rounded-xl bg-card hover:bg-card/70">TV Grafik</button>
           </div>
           <div class="hidden md:flex items-center gap-1 ml-auto">
             <button data-s="BTCUSDT" class="quick px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">BTC</button>
@@ -70,16 +56,11 @@
       </div>
     </header>
 
-    <!-- Main -->
     <main class="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-[1.7fr,1fr] gap-4 p-3 md:p-6">
-      <!-- Left: Charts & Analysis -->
       <section class="space-y-4">
         <div class="glass rounded-2xl p-3 md:p-4 shadow-soft">
           <div class="flex items-center justify-between mb-2">
-            <div>
-              <div class="text-sm opacity-70">Canlı Grafik (Binance)</div>
-              <div id="title" class="font-semibold">BTCUSDT • 5m</div>
-            </div>
+            <div><div class="text-sm opacity-70">Canlı Grafik (Binance)</div><div id="title" class="font-semibold">BTCUSDT • 5m</div></div>
             <div class="text-xs opacity-70">EMA(9/21/50/200) • RSI(14) • MACD(12,26,9) • ATR(14)</div>
           </div>
           <div id="charts" class="grid gap-2">
@@ -116,20 +97,16 @@
         </div>
       </section>
 
-      <!-- Right: Chat -->
       <aside class="glass rounded-2xl p-0 shadow-soft flex flex-col overflow-hidden">
         <div class="p-3 md:p-4 border-b border-white/10 flex items-center justify-between">
-          <div>
-            <div class="text-sm opacity-70">Yerleşik Asistan</div>
-            <div class="font-semibold">Gerçek Zamanlı Sohbet</div>
-          </div>
+          <div><div class="text-sm opacity-70">Yerleşik Asistan</div><div class="font-semibold">Gerçek Zamanlı Sohbet</div></div>
           <div class="text-xs opacity-70">Model: <span id="modelName">gpt-4o-mini</span></div>
         </div>
         <div id="chat" class="flex-1 overflow-auto p-3 md:p-4 space-y-3 scroll-thin"></div>
         <div class="p-2 border-t border-white/10">
           <div class="flex gap-2">
             <button id="btnTemplate" class="px-2 py-2 rounded-xl bg-card hover:bg-card/70 text-xs">Şablon</button>
-            <input id="prompt" class="flex-1 px-3 py-2 rounded-xl bg-card outline-none" placeholder="Buradan konuş – örn: BTC 5m için scalp planı yaz" />
+            <input id="prompt" class="flex-1 px-3 py-2 rounded-xl bg-card outline-none" placeholder="Buradan konuş – örn: BTC 5m için scalp planı yaz"/>
             <button id="btnSend" class="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent/30">Gönder</button>
           </div>
           <div class="mt-2 text-[10px] opacity-60">Not: Yayına alacaksan, <b>Ayarlar</b> kısmından <b>Worker URL</b> ve <b>Proxy App Key</b> gir. OpenAI anahtarını frontend'e koyma.</div>
@@ -138,22 +115,18 @@
     </main>
   </div>
 
-  <!-- Settings Modal -->
   <dialog id="settingsModal" class="rounded-2xl w-[95%] max-w-xl bg-card p-0 text-slate-200">
     <div class="p-4 border-b border-white/10 flex items-center justify-between">
-      <div>
-        <div class="text-sm opacity-70">Uygulama Ayarları</div>
-        <div class="font-semibold">OpenAI, Stil ve Varsayılanlar</div>
-      </div>
+      <div><div class="text-sm opacity-70">Uygulama Ayarları</div><div class="font-semibold">OpenAI, Stil ve Varsayılanlar</div></div>
       <button id="btnCloseSettings" class="px-2 py-1 rounded-lg bg-white/10">Kapat</button>
     </div>
     <div class="p-4 space-y-4">
       <div>
         <label class="block text-xs opacity-70 mb-1">Proxy App Key (tarayıcıda saklanır)</label>
-        <input id="apiKey" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="coingame-app-key" />
+        <input id="apiKey" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="coingame-app-key"/>
         <div class="mt-3">
           <label class="block text-xs opacity-70 mb-1">Worker URL</label>
-          <input id="workerUrl" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="https://coingame-proxy.gokhanv16kocak.workers.dev" />
+          <input id="workerUrl" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none" placeholder="https://coingame-proxy.gokhanv16kocak.workers.dev"/>
         </div>
       </div>
       <div class="grid md:grid-cols-2 gap-3">
@@ -167,7 +140,7 @@
         </div>
         <div>
           <label class="block text-xs opacity-70 mb-1">Varsayılan Sembol</label>
-          <input id="defaultSymbol" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none uppercase" value="BTCUSDT" />
+          <input id="defaultSymbol" class="w-full px-3 py-2 rounded-xl bg-black/30 outline-none uppercase" value="BTCUSDT"/>
         </div>
       </div>
       <div>
@@ -181,505 +154,172 @@
   </dialog>
 
   <script>
-    // =====================
-    // Utils & State
-    // =====================
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    // ========= State / Utils =========
+    const $ = s=>document.querySelector(s);
+    const $$ = s=>Array.from(document.querySelectorAll(s));
     const state = {
-      symbol: 'BTCUSDT',
-      interval: '5m',
-      ws: null,
-      klines: [],
-      indicators: {},
-      key: localStorage.getItem('cg_app_key') || '',
-      workerUrl: localStorage.getItem('cg_worker_url') || 'https://coingame-proxy.gokhanv16kocak.workers.dev',
-      model: localStorage.getItem('cg_model') || 'gpt-4o-mini',
-      systemPrompt: localStorage.getItem('cg_sys') || '',
+      symbol:'BTCUSDT', interval:'5m', ws:null, klines:[], indicators:{},
+      key:localStorage.getItem('cg_app_key')||'',
+      workerUrl:localStorage.getItem('cg_worker_url')||'https://coingame-proxy.gokhanv16kocak.workers.dev',
+      model:localStorage.getItem('cg_model')||'gpt-4o-mini',
+      systemPrompt:localStorage.getItem('cg_sys')||'',
+      autoScroll:true, didFit:false
     };
+    const fmt=(n,d=2)=>Number(n).toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d});
+    const last=a=>a&&a.length?a[a.length-1]:null;
+    const settingsModalEl=$('#settingsModal');
+    const ivSec=iv=>({'1m':60,'3m':180,'5m':300,'15m':900,'30m':1800,'1h':3600,'4h':14400}[iv]||60);
+    const toast=m=>{const e=document.createElement('div');e.className='fixed bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-xl text-sm shadow-soft';e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),2200)};
 
-    const lastVal = (arr) => (arr && arr.length ? arr[arr.length-1] : null);
-    const settingsModalEl = document.getElementById('settingsModal');
-
-    const fmt = (n, d=2) => Number(n).toLocaleString('tr-TR', { minimumFractionDigits:d, maximumFractionDigits:d });
-
-    function toast(msg) {
-      const el = document.createElement('div');
-      el.className = 'fixed bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-xl text-sm shadow-soft';
-      el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 2200);
-    }
-
-    function parseSymbolFromText(text='') {
-      const t = String(text).toLowerCase();
-      if (/\bbtc(usdt|usd)?\b/.test(t) || /\bbitcoin\b/.test(t)) return 'BTCUSDT';
-      if (/\beth(usdt|usd)?\b/.test(t) || /\bethereum\b/.test(t)) return 'ETHUSDT';
-      if (/\bsol(usdt|usd)?\b/.test(t) || /\bsolana\b/.test(t)) return 'SOLUSDT';
-      if (/\bavax(usdt|usd)?\b/.test(t)) return 'AVAXUSDT';
-      if (/\bsui(usdt|usd)?\b/.test(t)) return 'SUIUSDT';
-      if (/\bdoge(usdt|usd)?\b/.test(t) || /\bdogecoin\b/.test(t)) return 'DOGEUSDT';
+    function parseSymbolFromText(text=''){
+      const t=String(text).toLowerCase();
+      if(/\bbtc(usdt|usd)?\b/.test(t)||/\bbitcoin\b/.test(t))return'BTCUSDT';
+      if(/\beth(usdt|usd)?\b/.test(t)||/\bethereum\b/.test(t))return'ETHUSDT';
+      if(/\bsol(usdt|usd)?\b/.test(t)||/\bsolana\b/.test(t))return'SOLUSDT';
+      if(/\bavax(usdt|usd)?\b/.test(t))return'AVAXUSDT';
+      if(/\bsui(usdt|usd)?\b/.test(t))return'SUIUSDT';
+      if(/\bdoge(usdt|usd)?\b/.test(t)||/\bdogecoin\b/.test(t))return'DOGEUSDT';
       return null;
     }
 
-    function buildSnapshot() {
-      const i = state.indicators || {};
-      const last = state.klines && state.klines.length ? state.klines[state.klines.length-1] : {}; 
-      const num = (x)=> (typeof x === 'number' && isFinite(x)) ? x : 0;
-      return {
-        symbol: state.symbol,
-        interval: state.interval,
-        ts: Date.now(),
-        last_close: num(i.close ?? last.close ?? 0),
-        ema9: num(i.ema9),
-        ema21: num(i.ema21),
-        ema50: num(i.ema50),
-        ema200: num(i.ema200),
-        rsi14: num(i.rsi),
-        macd: num(i.macd),
-        macd_signal: num(i.macdSignal),
-        macd_hist: num(i.macdHist),
-        atr14: num(i.atr),
-        last_candle: { o:num(last.open), h:num(last.high), l:num(last.low), c:num(last.close), v:num(last.volume) }
-      };
-    }
+    // ========= Charts =========
+    let priceChart,rsiChart,macdChart,priceSeries,ema9Series,ema21Series,ema50Series,ema200Series,rsiLine,macdLine,signalLine,histSeries;
 
-    function snapshotString(){ return JSON.stringify(buildSnapshot()); }
-
-    // =====================
-    // Charts
-    // =====================
-    let priceChart, rsiChart, macdChart, priceSeries, ema9Series, ema21Series, ema50Series, ema200Series, rsiLine, macdLine, signalLine, histSeries;
-
-    function initCharts() {
-      priceChart = LightweightCharts.createChart($('#priceChart'), {
-        layout: { background: { color: '#0b1220' }, textColor: '#cbd5e1' },
-        grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
-        rightPriceScale: { borderColor: '#334155' },
-        timeScale: { borderColor: '#334155' },
-        crosshair: { mode: 1 },
-        autoSize: true,
-        localization: { priceFormatter: (p)=> fmt(p, 2) }
+    function initCharts(){
+      priceChart=LightweightCharts.createChart($('#priceChart'),{
+        layout:{background:{color:'#0b1220'},textColor:'#cbd5e1'},
+        grid:{vertLines:{color:'#1f2937'},horzLines:{color:'#1f2937'}},
+        rightPriceScale:{borderColor:'#334155'},timeScale:{borderColor:'#334155'},crosshair:{mode:1},autoSize:true,
+        localization:{priceFormatter:p=>fmt(p,2)}
       });
-      priceSeries = priceChart.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', wickUpColor: '#10b981', wickDownColor: '#ef4444', borderVisible: false });
-      ema9Series = priceChart.addLineSeries({ color: '#22c55e', lineWidth: 1 });
-      ema21Series = priceChart.addLineSeries({ color: '#3b82f6', lineWidth: 1 });
-      ema50Series = priceChart.addLineSeries({ color: '#eab308', lineWidth: 1 });
-      ema200Series = priceChart.addLineSeries({ color: '#a855f7', lineWidth: 1 });
+      priceSeries=priceChart.addCandlestickSeries({upColor:'#10b981',downColor:'#ef4444',wickUpColor:'#10b981',wickDownColor:'#ef4444',borderVisible:false});
+      ema9Series=priceChart.addLineSeries({color:'#22c55e',lineWidth:1});
+      ema21Series=priceChart.addLineSeries({color:'#3b82f6',lineWidth:1});
+      ema50Series=priceChart.addLineSeries({color:'#eab308',lineWidth:1});
+      ema200Series=priceChart.addLineSeries({color:'#a855f7',lineWidth:1});
 
-      rsiChart = LightweightCharts.createChart($('#rsiChart'), {
-        layout: { background: { color: '#0b1220' }, textColor: '#cbd5e1' },
-        grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
-        rightPriceScale: { borderColor: '#334155' },
-        timeScale: { borderColor: '#334155' },
-        autoSize: true,
-      });
-      rsiLine = rsiChart.addLineSeries({ color: '#9ca3af', lineWidth: 1 });
-      const rsi30 = rsiChart.addLineSeries({ color: '#eab308', lineWidth: 1, lineStyle: 1 });
-      const rsi70 = rsiChart.addLineSeries({ color: '#eab308', lineWidth: 1, lineStyle: 1 });
-      rsiChart._rsiBands = { rsi30, rsi70 };
+      rsiChart=LightweightCharts.createChart($('#rsiChart'),{layout:{background:{color:'#0b1220'},textColor:'#cbd5e1'},grid:{vertLines:{color:'#1f2937'},horzLines:{color:'#1f2937'}},rightPriceScale:{borderColor:'#334155'},timeScale:{borderColor:'#334155'},autoSize:true});
+      rsiLine=rsiChart.addLineSeries({color:'#9ca3af',lineWidth:1});
+      const rsi30=rsiChart.addLineSeries({color:'#eab308',lineWidth:1,lineStyle:1});
+      const rsi70=rsiChart.addLineSeries({color:'#eab308',lineWidth:1,lineStyle:1});
+      rsiChart._rsiBands={rsi30,rsi70};
 
-      macdChart = LightweightCharts.createChart($('#macdChart'), {
-        layout: { background: { color: '#0b1220' }, textColor: '#cbd5e1' },
-        grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
-        rightPriceScale: { borderColor: '#334155' },
-        timeScale: { borderColor: '#334155' },
-        autoSize: true,
-      });
-      macdLine = macdChart.addLineSeries({ color: '#60a5fa', lineWidth: 1 });
-      signalLine = macdChart.addLineSeries({ color: '#f87171', lineWidth: 1 });
-      histSeries = macdChart.addHistogramSeries({});
+      macdChart=LightweightCharts.createChart($('#macdChart'),{layout:{background:{color:'#0b1220'},textColor:'#cbd5e1'},grid:{vertLines:{color:'#1f2937'},horzLines:{color:'#1f2937'}},rightPriceScale:{borderColor:'#334155'},timeScale:{borderColor:'#334155'},autoSize:true});
+      macdLine=macdChart.addLineSeries({color:'#60a5fa',lineWidth:1});
+      signalLine=macdChart.addLineSeries({color:'#f87171',lineWidth:1});
+      histSeries=macdChart.addHistogramSeries({});
 
-      const sync = () => {
-        const range = priceChart.timeScale().getVisibleRange();
-        if (range) { rsiChart.timeScale().setVisibleRange(range); macdChart.timeScale().setVisibleRange(range); }
-      };
+      const sync=()=>{const r=priceChart.timeScale().getVisibleRange(); if(r){rsiChart.timeScale().setVisibleRange(r); macdChart.timeScale().setVisibleRange(r);} };
       priceChart.timeScale().subscribeVisibleTimeRangeChange(sync);
       rsiChart.timeScale().subscribeVisibleTimeRangeChange(sync);
       macdChart.timeScale().subscribeVisibleTimeRangeChange(sync);
+
+      // Kullanıcı panned mi? sağ kenarda mıyız? → autoScroll güncelle
+      priceChart.timeScale().subscribeVisibleTimeRangeChange(range=>{
+        if(!range||!state.klines.length) return;
+        const lastSec=Math.floor(state.klines[state.klines.length-1].time/1000);
+        state.autoScroll=(range.to>=lastSec-ivSec(state.interval)*0.5);
+      });
     }
 
-    function setAllData() {
-      if (!state.klines.length) return;
-      const candles = state.klines.map(k => ({ time: k.time/1000, open: k.open, high: k.high, low: k.low, close: k.close }));
+    function calcEMA(values,period){const k=2/(period+1);const ema=new Array(values.length).fill(null);let prev;for(let i=0;i<values.length;i++){const v=values[i];if(v==null)continue;if(i<period-1){ema[i]=null;continue;}if(i===period-1){const sma=values.slice(0,period).reduce((a,b)=>a+b,0)/period;ema[i]=sma;prev=sma;continue;}const cur=(v-prev)*k+prev;ema[i]=cur;prev=cur;}return ema;}
+    function calcRSI(values,period=14){const rsi=new Array(values.length).fill(null);let g=0,l=0;for(let i=1;i<=period;i++){const d=values[i]-values[i-1]; if(d>=0)g+=d; else l-=d;} let ag=g/period, al=l/period; rsi[period]=al===0?100:100-(100/(1+(ag/al))); for(let i=period+1;i<values.length;i++){const d=values[i]-values[i-1]; const G=Math.max(0,d), L=Math.max(0,-d); ag=(ag*(period-1)+G)/period; al=(al*(period-1)+L)/period; rsi[i]=al===0?100:100-(100/(1+(ag/al))); } return rsi;}
+    function calcMACD(values,f=12,s=26,sg=9){const ef=calcEMA(values,f), es=calcEMA(values,s); const macd=values.map((_,i)=>(ef[i]!=null&&es[i]!=null)?ef[i]-es[i]:null); const sig=calcEMA(macd.map(v=>v==null?0:v),sg).map((v,i)=>macd[i]==null?null:v); const hist=macd.map((v,i)=>(v!=null&&sig[i]!=null)?v-sig[i]:null); return {macd,sig,hist};}
+    function calcATR(ks,p=14){const atr=new Array(ks.length).fill(null);const trs=[];for(let i=0;i<ks.length;i++){const k=ks[i], prev=i>0?ks[i-1].close:k.close; const tr=Math.max(k.high-k.low,Math.abs(k.high-prev),Math.abs(k.low-prev)); trs.push(tr); if(i===p-1)atr[i]=trs.reduce((a,b)=>a+b,0)/p; else if(i>=p)atr[i]=(atr[i-1]*(p-1)+tr)/p;} return atr;}
+
+    function setAllData(){
+      if(!state.klines.length) return;
+      const candles=state.klines.map(k=>({time:k.time/1000,open:k.open,high:k.high,low:k.low,close:k.close}));
       priceSeries.setData(candles);
+      const closes=state.klines.map(k=>k.close), times=state.klines.map(k=>Math.floor(k.time/1000));
+      const ema9=calcEMA(closes,9), ema21=calcEMA(closes,21), ema50=calcEMA(closes,50), ema200=calcEMA(closes,200);
+      ema9Series.setData(ema9.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      ema21Series.setData(ema21.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      ema50Series.setData(ema50.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      ema200Series.setData(ema200.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      const rsi=calcRSI(closes,14);
+      rsiLine.setData(rsi.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      rsiChart._rsiBands.rsi30.setData(times.map(t=>({time:t,value:30})));
+      rsiChart._rsiBands.rsi70.setData(times.map(t=>({time:t,value:70})));
+      const {macd:sMacd,sig,sig:signal,hist}=(()=>{const m=calcMACD(closes,12,26,9); return {macd:m.macd,sig:m.signal,hist:m.hist};})();
+      macdLine.setData(sMacd.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      signalLine.setData(signal.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
+      histSeries.setData(hist.map((v,i)=>v!=null?{time:times[i],value:v}:null).filter(Boolean));
 
-      const closes = state.klines.map(k => k.close);
-      const times = state.klines.map(k => Math.floor(k.time/1000));
-
-      const ema9 = calcEMA(closes, 9);
-      const ema21 = calcEMA(closes, 21);
-      const ema50 = calcEMA(closes, 50);
-      const ema200 = calcEMA(closes, 200);
-      ema9Series.setData(ema9.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-      ema21Series.setData(ema21.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-      ema50Series.setData(ema50.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-      ema200Series.setData(ema200.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-
-      const rsi = calcRSI(closes, 14);
-      rsiLine.setData(rsi.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-      const rsi30 = times.map(t => ({ time: t, value: 30 }));
-      const rsi70 = times.map(t => ({ time: t, value: 70 }));
-      rsiChart._rsiBands.rsi30.setData(rsi30);
-      rsiChart._rsiBands.rsi70.setData(rsi70);
-
-      const { macd, signal, hist } = calcMACD(closes, 12, 26, 9);
-      macdLine.setData(macd.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-      signalLine.setData(signal.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-      histSeries.setData(hist.map((v,i)=> v!=null? { time: times[i], value: v } : null).filter(Boolean));
-
-      const atr = calcATR(state.klines, 14);
-      state.indicators = {
-        ema9: lastVal(ema9), ema21: lastVal(ema21), ema50: lastVal(ema50), ema200: lastVal(ema200),
-        rsi: lastVal(rsi),
-        macd: lastVal(macd), macdSignal: lastVal(signal), macdHist: lastVal(hist),
-        atr: lastVal(atr),
-        close: lastVal(closes),
-        time: lastVal(times),
-      };
+      const atr=calcATR(state.klines,14);
+      state.indicators={ema9:last(ema9),ema21:last(ema21),ema50:last(ema50),ema200:last(ema200),rsi:last(rsi),macd:last(sMacd),macdSignal:last(signal),macdHist:last(hist),atr:last(atr),close:last(closes),time:last(times)};
       renderIndicatorCards();
-      priceChart.timeScale().fitContent();
-      rsiChart.timeScale().fitContent();
-      macdChart.timeScale().fitContent();
+
+      if(!state.didFit){ priceChart.timeScale().fitContent(); rsiChart.timeScale().fitContent(); macdChart.timeScale().fitContent(); state.didFit=true; }
+      else if(state.autoScroll){ priceChart.timeScale().scrollToRealTime(); rsiChart.timeScale().scrollToRealTime(); macdChart.timeScale().scrollToRealTime(); }
     }
 
-    // =====================
-    // Indicators
-    // =====================
-    function calcEMA(values, period) {
-      const k = 2/(period+1);
-      const ema = new Array(values.length).fill(null);
-      let prev;
-      for (let i=0; i<values.length; i++) {
-        const v = values[i];
-        if (v==null) continue;
-        if (i < period-1) { ema[i] = null; continue; }
-        if (i===period-1) {
-          const sma = values.slice(0,period).reduce((a,b)=>a+b,0)/period;
-          ema[i] = sma; prev = sma; continue;
-        }
-        const cur = (v - prev) * k + prev;
-        ema[i] = cur; prev = cur;
-      }
-      return ema;
-    }
+    // ========= Data & WS =========
+    let updateScheduled=false;
+    const schedule=()=>{ if(updateScheduled) return; updateScheduled=true; setTimeout(()=>{updateScheduled=false; setAllData();},300); };
+    async function loadHistory(){ const url=`https://api.binance.com/api/v3/klines?symbol=${state.symbol}&interval=${state.interval}&limit=500`; const r=await fetch(url); const d=await r.json(); state.klines=d.map(k=>({time:k[0],open:+k[1],high:+k[2],low:+k[3],close:+k[4],volume:+k[5]})); setAllData(); }
+    function startWS(){ stopWS(); const stream=`${state.symbol.toLowerCase()}@kline_${state.interval}`; state.ws=new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`); state.ws.onmessage=ev=>{const m=JSON.parse(ev.data); if(!m.k)return; const k=m.k,t=k.t; const i=state.klines.findIndex(x=>x.time===t); const cur={time:t,open:+k.o,high:+k.h,low:+k.l,close:+k.c,volume:+k.v}; if(i>=0)state.klines[i]=cur; else state.klines.push(cur); schedule();}; state.ws.onopen=()=>toast('WS bağlı'); state.ws.onclose=()=>toast('WS kapandı');}
+    function stopWS(){ if(state.ws){try{state.ws.close();}catch{} state.ws=null;} }
 
-    function calcRSI(values, period=14) {
-      const rsi = new Array(values.length).fill(null);
-      let gains=0, losses=0;
-      for (let i=1; i<=period; i++) {
-        const diff = values[i]-values[i-1];
-        if (diff>=0) gains += diff; else losses -= diff;
-      }
-      let avgGain = gains/period; let avgLoss = losses/period;
-      rsi[period] = avgLoss===0 ? 100 : 100 - (100/(1 + (avgGain/avgLoss)));
-      for (let i=period+1; i<values.length; i++) {
-        const diff = values[i]-values[i-1];
-        const gain = Math.max(0, diff); const loss = Math.max(0, -diff);
-        avgGain = (avgGain*(period-1) + gain)/period;
-        avgLoss = (avgLoss*(period-1) + loss)/period;
-        rsi[i] = avgLoss===0 ? 100 : 100 - (100/(1 + (avgGain/avgLoss)));
-      }
-      return rsi;
-    }
+    // ========= Indicator Cards & Analysis =========
+    function renderIndicatorCards(){ const i=state.indicators; if(!i||!i.close) return; const cards=[{k:'Fiyat',v:fmt(i.close)},{k:'Trend (EMA200)',v:i.close>i.ema200?'YUKARI':'AŞAĞI'},{k:'EMA9/21',v:(i.ema9>i.ema21?'Bullish 9>21':'Bearish 9<21')},{k:'EMA50',v:fmt(i.ema50||0)},{k:'RSI(14)',v:`${Number(i.rsi||0).toFixed(1)} • ${i.rsi>70?'Aşırı Alım':i.rsi<30?'Aşırı Satım':'Nötr'}`},{k:'MACD',v:(i.macd>i.macdSignal?'Bullish':'Bearish')},{k:'ATR(14)',v:Number(i.atr||0).toFixed(4)},{k:'Zaman',v:dayjs(i.time*1000).format('HH:mm DD.MM')}]; $('#indicators').innerHTML=cards.map(c=>`<div class="rounded-xl bg-black/30 p-3"><div class="text-xs opacity-70">${c.k}</div><div class="font-semibold">${c.v}</div></div>`).join(''); }
+    function scoreAndPlan(){ const i=state.indicators; if(!i||!i.close) return null; let s=0; s+=(i.close>i.ema200?1:-1); s+=(i.ema9>i.ema21?1:-1); s+=(i.macd>i.macdSignal?1:-1); if(i.rsi!=null) s+=(i.rsi>60?1:(i.rsi<40?-1:0)); const dir=s>=0?'LONG':'SHORT'; const prob=Math.min(85,Math.max(55,50+Math.round(Math.abs(s)*10))); const entry=i.ema21||i.close; const atr=i.atr||(i.close*0.003); const sl=dir==='LONG'?entry-atr*1.2:entry+atr*1.2; const tp1=dir==='LONG'?entry+atr*1.2:entry-atr*1.2; const tp2=dir==='LONG'?entry+atr*2.4:entry-atr*2.4; const rr=(Math.abs(tp1-entry)/Math.abs(entry-sl)).toFixed(2); return{dir,prob,entry,sl,tp1,tp2,rr}; }
+    function buildAnalysisText(){ const i=state.indicators; if(!i||!i.close) return 'Veri yok'; const p=scoreAndPlan(); const L=[]; L.push('GUNLUK PROFESYONEL SCALPING ANALIZI'); L.push(`Sembol: ${state.symbol} | Zaman: ${state.interval}`); L.push(`Fiyat: ${fmt(i.close)} | EMA9:${fmt(i.ema9||0)} • EMA21:${fmt(i.ema21||0)} • EMA50:${fmt(i.ema50||0)} • EMA200:${fmt(i.ema200||0)}`); L.push(`RSI14:${Number(i.rsi||0).toFixed(1)} | MACD:${Number(i.macd||0).toFixed(3)} / Sinyal:${Number(i.macdSignal||0).toFixed(3)} | ATR14:${Number(i.atr||0).toFixed(4)}`); L.push(`Trend: ${i.close>i.ema200?'EMA200 ustu (yukari)':'EMA200 alti (asagi)'} | 9/21: ${(i.ema9>i.ema21)?'bullish':'bearish'}`); if(p){ L.push(''); L.push(`ONERILEN POZISYON: ${p.dir} • Olasilik: %${p.prob}`); L.push(`Giris: ${fmt(p.entry)} | SL: ${fmt(p.sl)} | TP1: ${fmt(p.tp1)} | TP2: ${fmt(p.tp2)} | R/R: ${p.rr}`);} L.push(''); L.push('Not: Bu cikti otomatik hesaplanir. Islemeden once likidite/volatilite ve haber akisina bak.'); return L.join('\n'); }
 
-    function calcMACD(values, fast=12, slow=26, signal=9) {
-      const emaFast = calcEMA(values, fast);
-      const emaSlow = calcEMA(values, slow);
-      const macd = values.map((_,i)=> (emaFast[i]!=null && emaSlow[i]!=null) ? emaFast[i]-emaSlow[i] : null);
-      const sig = calcEMA(macd.map(v=> v==null? 0 : v), signal).map((v,i)=> macd[i]==null? null : v);
-      const hist = macd.map((v,i)=> (v!=null && sig[i]!=null) ? v - sig[i] : null);
-      return { macd, signal: sig, hist };
-    }
+    // ========= Chat =========
+    function addMsg(role,content){ const w=document.createElement('div'); w.className=`p-3 rounded-xl ${role==='assistant'?'msg-ai':'msg-me'}`; const who=role==='assistant'?'Asistan':'Sen'; w.innerHTML=`<div class="text-[10px] opacity-60 mb-1">${who}</div><div class="whitespace-pre-wrap text-sm">${content}</div>`; $('#chat').appendChild(w); $('#chat').scrollTop=$('#chat').scrollHeight; }
+    function getChatContext(){ const sys=(state.systemPrompt&&state.systemPrompt.trim())?state.systemPrompt:$('#systemPrompt').value; const snap=JSON.stringify({symbol:state.symbol,interval:state.interval,ts:Date.now(),...state.indicators,last_candle:state.klines.length?state.klines[state.klines.length-1]:{}}); const rules=['KURALLAR:','- Sadece SNAPSHOT verilerini kullan, yeni fiyat uydurma.','- Cevap Turkce ve net olsun.',`- Ciktda sembol: ${state.symbol}, interval: ${state.interval}.`,'- Giris/SL/TP fiyatlari iki ondalikla yaz.','- Olasiligi % olarak ver.','- SNAPSHOT disi veri kullanma.'].join('\n'); return[{role:'system',content:sys},{role:'system',content:'SNAPSHOT: '+snap},{role:'system',content:rules}]; }
+    async function streamChat(messages){ const key=state.key||$('#apiKey').value; if(!key){toast('Once Ayarlar > Proxy App Key gir'); return;} const model=state.model||$('#model').value; $('#modelName').textContent=model; addMsg('user', messages[messages.length-1].content||'[İstek gönderildi]'); const holder=document.createElement('div'); holder.className='p-3 rounded-xl msg-ai'; holder.innerHTML='<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>'; $('#chat').appendChild(holder); const out=holder.querySelector('#streaming'); const res=await fetch(state.workerUrl+'/v1/chat/completions',{method:'POST',headers:{'X-APP-KEY':key,'Content-Type':'application/json'},body:JSON.stringify({model,stream:true,messages})}); if(!res.ok){ out.textContent=(res.status===429?'Hata: 429 - hız limiti. Kısa süre bekleyip tekrar dene.':`Hata: ${res.status} ${res.statusText}`); return; } const reader=res.body.getReader(); const dec=new TextDecoder('utf-8'); let done=false,acc=''; while(!done){ const {value,done:d}=await reader.read(); done=d; const chunk=dec.decode(value||new Uint8Array(),{stream:true}); const lines=chunk.split('\n'); for(let line of lines){ line=line.trim(); if(!line||!line.startsWith('data:')) continue; const data=line.replace('data:','').trim(); if(data==='[DONE]'){done=true; break;} try{ const json=JSON.parse(data); const delta=json.choices?.[0]?.delta?.content||''; if(delta){acc+=delta; out.textContent=acc;} }catch{} } } }
+    async function sendMessageFromInput(){ const p=$('#prompt'); const text=(p.value||'').trim(); if(!text) return; p.value=''; const maybe=parseSymbolFromText(text); if(maybe&&maybe!==state.symbol){ $('#symbol').value=maybe; state.symbol=maybe; await reloadAll(); addMsg('assistant',`Sembol ${maybe} olarak guncellendi, canli veriyi aldim.`);} const msgs=getChatContext(); msgs.push({role:'user',content:text}); streamChat(msgs); }
+    async function sendAnalysisToChat(){ const text=buildAnalysisText(); const msgs=getChatContext(); msgs.push({role:'user',content:text+'\n\nBuna gore net islem onerisi yuzdelerle, giris/SL/TP ve risk/odul ile ver.'}); streamChat(msgs); }
+    async function sendImageToChat(dataUrl,extra='Bu grafigi analiz et ve scalp plani cikar.'){ const key=state.key||$('#apiKey').value; if(!key){toast('API key gir'); return;} const model=state.model||$('#model').value; $('#modelName').textContent=model; const snap=JSON.stringify({symbol:state.symbol,interval:state.interval,ts:Date.now(),...state.indicators}); addMsg('user','[Grafik gorseli gonderildi] '+extra); const holder=document.createElement('div'); holder.className='p-3 rounded-xl msg-ai'; holder.innerHTML='<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>'; $('#chat').appendChild(holder); const out=holder.querySelector('#streaming'); const body={model,stream:true,messages:[{role:'system',content:(state.systemPrompt||$('#systemPrompt').value)},{role:'system',content:'SNAPSHOT: '+snap},{role:'system',content:'KURALLAR: Sadece SNAPSHOT\\'taki fiyat/indikatorleri kullan; sayi uydurma; Turkce yaz; giris/SL/TP iki ondalik; olasiligi % ver.'},{role:'user',content:[{type:'text',text:`Sembol: ${state.symbol}, Zaman: ${state.interval}. Asagidaki grafigi analiz et: ${extra}`},{type:'image_url',image_url:{url:dataUrl}}]}]}; const res=await fetch(state.workerUrl+'/v1/chat/completions',{method:'POST',headers:{'X-APP-KEY':key,'Content-Type':'application/json'},body:JSON.stringify(body)}); if(!res.ok){ out.textContent=(res.status===429?'Hata: 429 - hız limiti. Kısa süre bekleyip tekrar dene.':`Hata: ${res.status} ${res.statusText}`); return; } const reader=res.body.getReader(); const dec=new TextDecoder('utf-8'); let done=false,acc=''; while(!done){ const {value,done:d}=await reader.read(); done=d; const chunk=dec.decode(value||new Uint8Array(),{stream:true}); const lines=chunk.split('\n'); for(let line of lines){ line=line.trim(); if(!line||!line.startsWith('data:')) continue; const data=line.replace('data:','').trim(); if(data==='[DONE]'){done=true; break;} try{ const json=JSON.parse(data); const delta=json.choices?.[0]?.delta?.content||''; if(delta){acc+=delta; out.textContent=acc;} }catch{} } } }
 
-    function calcATR(klines, period=14) {
-      const atr = new Array(klines.length).fill(null);
-      const trs = [];
-      for (let i=0; i<klines.length; i++) {
-        const k = klines[i];
-        const prevClose = i>0 ? klines[i-1].close : k.close;
-        const tr = Math.max(k.high-k.low, Math.abs(k.high-prevClose), Math.abs(k.low-prevClose));
-        trs.push(tr);
-        if (i===period-1) atr[i] = trs.reduce((a,b)=>a+b,0)/period;
-        else if (i>=period) atr[i] = (atr[i-1]*(period-1) + tr)/period;
-      }
-      return atr;
-    }
+    // ========= Uploads / Snap =========
+    const chartToDataUrl=()=>{ const c=$('#priceChart').querySelector('canvas'); if(!c){toast('Canvas bulunamadı'); return null;} return c.toDataURL('image/png'); };
+    $('#fileInput').addEventListener('change',e=>{ const fs=e.target.files||[]; for(const f of fs){ const r=new FileReader(); r.onload=()=>addUpload(r.result); r.readAsDataURL(f);} e.target.value=''; });
+    function addUpload(dataUrl){ const card=document.createElement('div'); card.className='rounded-xl overflow-hidden bg-black/30 border border-white/10'; card.innerHTML=`<img src="${dataUrl}" class="w-full h-28 object-cover"/><div class="p-2 flex gap-2"><button class="px-2 py-1 rounded-lg bg-accent/20 hover:bg-accent/30 text-xs">Analiz Et</button><button class="px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">Sohbete Gonder</button></div>`; const [a,b]=card.querySelectorAll('button'); a.onclick=()=>sendImageToChat(dataUrl,'Yukledigim gorsel icin net scalp analizi yaz.'); b.onclick=()=>sendImageToChat(dataUrl,'Bu gorseli yorumla, hatalari ve firsatlari cikar.'); $('#uploads').prepend(card); }
 
-    // =====================
-    // Data Fetch & WS
-    // =====================
-    let updateScheduled = false;
-    function scheduleSetAll(){ if (updateScheduled) return; updateScheduled = true; setTimeout(()=>{ updateScheduled=false; setAllData(); }, 300); }
+    // ========= TradingView =========
+    function loadTradingView(symbol='BINANCE:'+state.symbol){ $('#tv-wrapper').style.display='block'; if(!window.TVScriptLoaded){ const s=document.createElement('script'); s.src='https://s3.tradingview.com/tv.js'; s.onload=()=>{ window.TVScriptLoaded=true; renderTV(symbol); }; document.body.appendChild(s);} else { renderTV(symbol); } }
+    function renderTV(symbol){ $('#tv-container').innerHTML=''; /* global TradingView */ new TradingView.widget({autosize:true,symbol,interval:'5',timezone:'Etc/UTC',theme:'dark',style:'1',locale:'tr',toolbar_bg:'#0b1220',enable_publishing:false,container_id:'tv-container'}); }
 
-    async function loadHistory() {
-      const url = `https://api.binance.com/api/v3/klines?symbol=${state.symbol}&interval=${state.interval}&limit=500`;
-      const res = await fetch(url);
-      const data = await res.json();
-      state.klines = data.map(k=> ({ time: k[0], open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
-      setAllData();
-    }
+    // ========= Events & Boot =========
+    function refreshTitle(){ $('#title').textContent=`${state.symbol} • ${state.interval}`; $('#infoSymbol').textContent=state.symbol; $('#infoInterval').textContent=state.interval; }
+    async function reloadAll(){ refreshTitle(); $('#tv-wrapper').style.display='none'; state.didFit=false; state.autoScroll=true; await loadHistory(); }
 
-    function startWS() {
-      stopWS();
-      const stream = `${state.symbol.toLowerCase()}@kline_${state.interval}`;
-      state.ws = new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
-      state.ws.onmessage = (ev) => {
-        const msg = JSON.parse(ev.data);
-        if (!msg.k) return;
-        const k = msg.k; const t = k.t;
-        const i = state.klines.findIndex(x => x.time === t);
-        const cur = { time: t, open: +k.o, high: +k.h, low: +k.l, close: +k.c, volume: +k.v };
-        if (i>=0) state.klines[i] = cur; else state.klines.push(cur);
-        scheduleSetAll();
-      };
-      state.ws.onopen = ()=> toast('WS bağlı');
-      state.ws.onclose = ()=> toast('WS kapandı');
-    }
-    function stopWS(){ if (state.ws) { try{ state.ws.close(); }catch{} state.ws=null; }
-}
+    $('#btnStart').onclick=()=>startWS();
+    $('#btnStop').onclick=()=>stopWS();
+    $('#btnAutoAnalyze').onclick=()=>$('#analysisText').textContent=buildAnalysisText();
+    $('#btnPlan').onclick=()=>{ const p=scoreAndPlan(); if(!p) return; const txt=[`Yon: ${p.dir} • Olasilik: %${p.prob}`,`Giris: ${fmt(p.entry)}`,`Stop: ${fmt(p.sl)}`,`TP1: ${fmt(p.tp1)}`,`TP2: ${fmt(p.tp2)}`,`Risk/Odul: ${p.rr}`].join('\n'); $('#analysisText').textContent=($('#analysisText').textContent+'\n\n'+txt).trim(); };
+    $('#btnSendToChat').onclick=()=>sendAnalysisToChat();
+    $('#btnSnap').onclick=()=>{ const u=chartToDataUrl(); if(u) sendImageToChat(u,'Bu canli grafigin son hali. Net scalp plani ver.'); };
 
-    // =====================
-    // Indicator Cards & Analysis
-    // =====================
-    function renderIndicatorCards(){
-      const i = state.indicators; if (!i || !i.close) return;
-      const trend = i.close > i.ema200 ? 'YUKARI' : 'AŞAĞI';
-      const emaCross = i.ema9!=null && i.ema21!=null ? (i.ema9>i.ema21? 'Bullish 9>21' : 'Bearish 9<21') : '-';
-      const rsiState = i.rsi!=null ? (i.rsi>70?'Aşırı Alım': i.rsi<30? 'Aşırı Satım':'Nötr') : '-';
-      const macdState = (i.macd!=null && i.macdSignal!=null) ? (i.macd>i.macdSignal? 'Bullish':'Bearish') : '-';
-      const cards = [
-        { k:'Fiyat', v: fmt(i.close) },
-        { k:'Trend (EMA200)', v: trend },
-        { k:'EMA9/21', v: emaCross },
-        { k:'EMA50', v: fmt(i.ema50||0) },
-        { k:'RSI(14)', v: `${Number(i.rsi||0).toFixed(1)} • ${rsiState}` },
-        { k:'MACD', v: macdState },
-        { k:'ATR(14)', v: Number(i.atr||0).toFixed(4) },
-        { k:'Zaman', v: dayjs(i.time*1000).format('HH:mm DD.MM') },
-      ];
-      $('#indicators').innerHTML = cards.map(c=> `
-        <div class="rounded-xl bg-black/30 p-3">
-          <div class="text-xs opacity-70">${c.k}</div>
-          <div class="font-semibold">${c.v}</div>
-        </div>
-      `).join('');
-    }
+    let tvOn=false;
+    $('#btnTV').onclick=()=>{ tvOn=!tvOn; if(tvOn){ loadTradingView('BINANCE:'+state.symbol); $('#btnTV').textContent='TV: Açık'; } else { $('#tv-wrapper').style.display='none'; $('#tv-container').innerHTML=''; $('#btnTV').textContent='TV Grafik'; } };
 
-    function scoreAndPlan(){
-      const i = state.indicators; if (!i || !i.close) return null;
-      let score = 0;
-      score += (i.close>i.ema200? 1:-1);
-      if (i.ema9!=null && i.ema21!=null) score += (i.ema9>i.ema21? 1:-1);
-      if (i.macd!=null && i.macdSignal!=null) score += (i.macd>i.macdSignal? 1:-1);
-      if (i.rsi!=null) score += (i.rsi>60? 1: i.rsi<40? -1: 0);
-      const dir = score>=0? 'LONG':'SHORT';
-      const prob = Math.min(85, Math.max(55, 50 + Math.round(Math.abs(score)*10)));
-      const entry = i.ema21 || i.close;
-      const atr = i.atr || (i.close*0.003);
-      const sl = dir==='LONG'? entry - atr*1.2 : entry + atr*1.2;
-      const tp1 = dir==='LONG'? entry + atr*1.2 : entry - atr*1.2;
-      const tp2 = dir==='LONG'? entry + atr*2.4 : entry - atr*2.4;
-      const rr = (Math.abs(tp1-entry)/Math.abs(entry-sl)).toFixed(2);
-      return { dir, prob, entry, sl, tp1, tp2, rr };
-    }
+    $('#btnSend').onclick=sendMessageFromInput;
+    $('#prompt').addEventListener('keydown',e=>{ if(e.key==='Enter') sendMessageFromInput(); });
+    $('#btnTemplate').onclick=()=>{ $('#prompt').value=['GUNLUK PROFESYONEL SCALPING ANALIZI',`ZAMAN ${state.interval} | ${state.symbol}`,'','GENEL ANALIZ','Pozisyon yonu net? Neden?','Giris seviyesi? Kosullar?','Stop & Hedef (net fiyat)','','TEKNIK','EMA(9/21/50/200)','RSI(14) — uyumsuzluk var mi?','MACD — momentum?','ATR(14) — SL/TP hesapla','Likidite & Yapi — kirilim/breaker/OB varsa yaz'].join('\n'); $('#prompt').focus(); };
 
-    function buildAnalysisText(){
-      const i = state.indicators; if (!i || !i.close) return 'Veri yok';
-      const p = scoreAndPlan();
-      const L = [];
-      L.push('📌 GÜNLÜK PROFESYONEL SCALPING ANALİZİ');
-      L.push(`Sembol: ${state.symbol} | Zaman: ${state.interval}`);
-      L.push(`Fiyat: ${fmt(i.close)} | EMA9:${fmt(i.ema9||0)} • EMA21:${fmt(i.ema21||0)} • EMA50:${fmt(i.ema50||0)} • EMA200:${fmt(i.ema200||0)}`);
-      L.push(`RSI14:${Number(i.rsi||0).toFixed(1)} | MACD:${Number(i.macd||0).toFixed(3)} / Sinyal:${Number(i.macdSignal||0).toFixed(3)} | ATR14:${Number(i.atr||0).toFixed(4)}`);
-      L.push(`Trend: ${i.close>i.ema200? 'EMA200 üstü (yukarı)':'EMA200 altı (aşağı)'} | 9/21: ${(i.ema9>i.ema21)?'bullish':'bearish'}`);
-      if (p) {
-        L.push(`
-🎯 ÖNERİLEN POZİSYON: ${p.dir} • Olasılık: %${p.prob}`);
-        L.push(`Giriş: ${fmt(p.entry)} | SL: ${fmt(p.sl)} | TP1: ${fmt(p.tp1)} | TP2: ${fmt(p.tp2)} | R/R: ${p.rr}`);
-      }
-      L.push('\n⚙️ Not: Bu çıktı otomatik hesaplanır. İşleme girmeden önce likidite/volatilite ve haber akışını kontrol et.');
-      return L.join('\n');
-    }
+    $('#btnSettings').onclick=()=>{ if(settingsModalEl.showModal) settingsModalEl.showModal(); else settingsModalEl.setAttribute('open',''); };
+    $('#btnCloseSettings').onclick=()=>{ if(settingsModalEl.close) settingsModalEl.close(); else settingsModalEl.removeAttribute('open'); };
+    $('#btnSaveSettings').onclick=()=>{ const key=$('#apiKey').value.trim(); const model=$('#model').value; const sys=$('#systemPrompt').value.trim(); const defSym=($('#defaultSymbol').value.trim().toUpperCase()||'BTCUSDT'); const workerUrl=$('#workerUrl').value.trim(); if(key) localStorage.setItem('cg_app_key',key); if(workerUrl) localStorage.setItem('cg_worker_url',workerUrl); localStorage.setItem('cg_model',model); localStorage.setItem('cg_sys',sys); state.key=key; state.model=model; state.systemPrompt=sys; state.workerUrl=workerUrl||state.workerUrl; $('#symbol').value=defSym; state.symbol=defSym; if(settingsModalEl.close) settingsModalEl.close(); else settingsModalEl.removeAttribute('open'); toast('Ayarlar kaydedildi'); reloadAll(); };
 
-    // =====================
-    // Chat
-    // =====================
-    function addMsg(role, content){
-      const wrap = document.createElement('div');
-      wrap.className = `p-3 rounded-xl ${role==='assistant'? 'msg-ai':'msg-me'}`;
-      wrap.innerHTML = `<div class="text-[10px] opacity-60 mb-1">${role==='assistant'?'Asistan':'Sen'}</div><div class="whitespace-pre-wrap text-sm">${content}</div>`;
-      $('#chat').appendChild(wrap);
-      $('#chat').scrollTop = $('#chat').scrollHeight;
-    }
-
-    function getChatContext(){
-      const sys = state.systemPrompt && state.systemPrompt.trim().length>0 ? state.systemPrompt : $('#systemPrompt').value;
-      const snap = snapshotString();
-      const rules = [
-        'KURALLAR:',
-        '- Sadece SNAPSHOT verilerini kullan, yeni fiyat uydurma.',
-        '- Cevap Türkçe ve net olsun.',
-        `- Çıktıda sembol: ${state.symbol}, interval: ${state.interval}.`,
-        '- Giriş/SL/TP fiyatları iki ondalıkla yaz.',
-        '- Olasılığı % olarak ver.',
-        '- SNAPSHOT dışı veri kullanma.'
-      ].join('\n');
-      return [
-        { role:'system', content: sys },
-        { role:'system', content: 'SNAPSHOT: ' + snap },
-        { role:'system', content: rules }
-      ];
-    }
-
-    async function streamChat(messages){
-      const key = state.key || $('#apiKey').value; if (!key) { toast('Önce Ayarlar > Proxy App Key gir'); return; }
-      const model = state.model || $('#model').value; $('#modelName').textContent = model;
-      addMsg('user', messages[messages.length-1].content || '[İstek gönderildi]');
-      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class="text-[10px] opacity-60 mb-1">Asistan</div><div class="whitespace-pre-wrap text-sm" id="streaming"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
-      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages }) });
-      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
-      const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done = false; let acc='';
-      while (!done) {
-        const { value, done: d } = await reader.read(); done = d;
-        const chunk = decoder.decode(value, { stream:true });
-        const lines = chunk.split('\n');
-        for (let line of lines) {
-          line = line.trim();
-          if (!line || !line.startsWith('data:')) continue;
-          const data = line.replace('data:','').trim();
-          if (data === '[DONE]') { done = true; break; }
-          try {
-            const json = JSON.parse(data);
-            const delta = json.choices?.[0]?.delta?.content || '';
-            if (delta) { acc += delta; out.textContent = acc; }
-          } catch {}
-        }
-      }
-    }
-
-    async function sendMessageFromInput(){
-      const p = $('#prompt'); const text = p.value.trim(); if (!text) return; p.value='';
-      const maybe = parseSymbolFromText(text); if (maybe && maybe!==state.symbol) { $('#symbol').value = maybe; state.symbol = maybe; await reloadAll(); addMsg('assistant', `Sembol ${maybe} olarak güncellendi, canlı veriyi aldım.`); }
-      const msgs = getChatContext(); msgs.push({ role:'user', content: text }); streamChat(msgs);
-    }
-
-    async function sendAnalysisToChat(){
-      const text = buildAnalysisText();
-      const msgs = getChatContext();
-      msgs.push({ role:'user', content: text + '\n\nBuna göre net işlem önerisini yüzdelerle, giriş/SL/TP ve risk/ödül ile ver.' });
-      streamChat(msgs);
-    }
-
-    async function sendImageToChat(dataUrl, extra='Bu grafiği analiz et ve scalp planı çıkar.'){
-      const key = state.key || $('#apiKey').value; if (!key) { toast('API key gir'); return; }
-      const model = state.model || $('#model').value; $('#modelName').textContent = model;
-      const snap = snapshotString(); addMsg('user', '[Grafik görseli gönderildi] ' + extra);
-      const holder = document.createElement('div'); holder.className = 'p-3 rounded-xl msg-ai'; holder.innerHTML = `<div class=\"text-[10px] opacity-60 mb-1\">Asistan</div><div class=\"whitespace-pre-wrap text-sm\" id=\"streaming\"></div>`; $('#chat').appendChild(holder); const out = holder.querySelector('#streaming');
-      const res = await fetch(`${state.workerUrl}/v1/chat/completions`, { method:'POST', headers: { 'X-APP-KEY': key, 'Content-Type':'application/json' }, body: JSON.stringify({ model, stream:true, messages: [ { role:'system', content: state.systemPrompt || $('#systemPrompt').value }, { role:'system', content: 'SNAPSHOT: ' + snap }, { role:'system', content: 'KURALLAR: Sadece SNAPSHOT’taki fiyat/indikatörleri kullan; sayı uydurma; Türkçe yaz; giriş/SL/TP iki ondalık; olasılığı % ver.' }, { role:'user', content: [ { type:'text', text: `Sembol: ${state.symbol}, Zaman: ${state.interval}. Aşağıdaki grafiği analiz et: ${extra}` }, { type:'image_url', image_url: { url: dataUrl } } ] } ] }) });
-      if (!res.ok) { out.textContent = `Hata: ${res.status} ${res.statusText}`; return; }
-      const reader = res.body.getReader(); const decoder = new TextDecoder('utf-8'); let done=false; let acc='';
-      while (!done) {
-        const { value, done: d } = await reader.read(); done = d;
-        const chunk = decoder.decode(value, { stream:true });
-        const lines = chunk.split('\n');
-        for (let line of lines) {
-          line = line.trim();
-          if (!line || !line.startsWith('data:')) continue;
-          const data = line.replace('data:','').trim();
-          if (data==='[DONE]') { done=true; break; }
-          try {
-            const json = JSON.parse(data);
-            const delta = json.choices?.[0]?.delta?.content || '';
-            if (delta) { acc += delta; out.textContent = acc; }
-          } catch{}
-        }
-      }
-    }
-
-    // =====================
-    // Screenshot & Uploads
-    // =====================
-    function chartToDataUrl(){ const canvas = $('#priceChart').querySelector('canvas'); if (!canvas) { toast('Canvas bulunamadı'); return null; } return canvas.toDataURL('image/png'); }
-
-    $('#fileInput').addEventListener('change', (e)=>{ const files = e.target.files || []; for (const f of files) { const reader = new FileReader(); reader.onload = ()=> addUpload(reader.result); reader.readAsDataURL(f); } e.target.value=''; });
-
-    function addUpload(dataUrl){ const card = document.createElement('div'); card.className = 'rounded-xl overflow-hidden bg-black/30 border border-white/10'; card.innerHTML = `<img src="${dataUrl}" class="w-full h-28 object-cover"/><div class="p-2 flex gap-2"><button class="px-2 py-1 rounded-lg bg-accent/20 hover:bg-accent/30 text-xs">Analiz Et</button><button class="px-2 py-1 rounded-lg bg-card hover:bg-card/70 text-xs">Sohbete Gönder</button></div>`; const [btnA, btnB] = card.querySelectorAll('button'); btnA.onclick = ()=> sendImageToChat(dataUrl, 'Yüklediğim görsel için net scalp analizi yaz.'); btnB.onclick = ()=> sendImageToChat(dataUrl, 'Bu görseli yorumla, hataları ve fırsatları çıkar.'); $('#uploads').prepend(card); }
-
-    // =====================
-    // TradingView (optional)
-    // =====================
-    function loadTradingView(symbol='CRYPTOCAP:TOTAL2'){ $('#tv-wrapper').style.display = 'block'; if (!window.TVScriptLoaded) { const s = document.createElement('script'); s.src='https://s3.tradingview.com/tv.js'; s.onload = ()=> { window.TVScriptLoaded=true; renderTV(symbol); }; document.body.appendChild(s); } else { renderTV(symbol); } }
-    function renderTV(symbol){ $('#tv-container').innerHTML=''; /* global TradingView */ new TradingView.widget({ autosize:true, symbol, interval:'5', timezone:'Etc/UTC', theme:'dark', style:'1', locale:'tr', toolbar_bg:'#0b1220', enable_publishing:false, container_id:'tv-container' }); }
-
-    // =====================
-    // Events & Boot
-    // =====================
-    function refreshTitle(){ $('#title').textContent = `${state.symbol} • ${state.interval}`; $('#infoSymbol').textContent = state.symbol; $('#infoInterval').textContent = state.interval; }
-    async function reloadAll(){ refreshTitle(); $('#tv-wrapper').style.display='none'; await loadHistory(); }
-
-    $('#btnStart').onclick = ()=> startWS();
-    $('#btnStop').onclick = ()=> stopWS();
-    $('#btnAutoAnalyze').onclick = ()=> { $('#analysisText').textContent = buildAnalysisText(); };
-    $('#btnPlan').onclick = ()=> { const p = scoreAndPlan(); if (!p) return; const txt = `Yön: ${p.dir} • Olasılık: %${p.prob}
-Giriş: ${fmt(p.entry)}
-Stop: ${fmt(p.sl)}
-TP1: ${fmt(p.tp1)}
-TP2: ${fmt(p.tp2)}
-Risk/Ödül: ${p.rr}`; $('#analysisText').textContent = ($('#analysisText').textContent + '\n\n' + txt).trim(); };
-    $('#btnSendToChat').onclick = ()=> sendAnalysisToChat();
-    $('#btnSnap').onclick = ()=> { const dataUrl = chartToDataUrl(); if (dataUrl) sendImageToChat(dataUrl, 'Bu canlı grafiğin son hali. Net scalp planı ver.'); };
-
-    $('#btnSend').onclick = sendMessageFromInput; $('#prompt').addEventListener('keydown', (e)=>{ if (e.key==='Enter') sendMessageFromInput(); });
-    $('#btnTemplate').onclick = ()=>{ $('#prompt').value = `📌 GÜNLÜK PROFESYONEL SCALPING ANALİZİ
-⏱️ ${state.interval} | ${state.symbol}
-
-❓ GENEL ANALİZ
-Pozisyon yönü net? Neden?
-Giriş seviyesi? Koşullar?
-Stop & Hedef (net fiyat)
-
-🔎 TEKNİK
-EMA(9/21/50/200)
-RSI(14) — uyumsuzluk var mı?
-MACD — momentum?
-ATR(14) — SL/TP hesapla
-Likidite & Yapı — kırılım/breaker/OB varsa yaz`; $('#prompt').focus(); };
-
-    $('#btnSettings').onclick = ()=> { if (settingsModalEl.showModal) settingsModalEl.showModal(); else settingsModalEl.setAttribute('open',''); };
-    document.getElementById('btnCloseSettings').onclick = ()=> { if (settingsModalEl.close) settingsModalEl.close(); else settingsModalEl.removeAttribute('open'); };
-
-    $('#btnSaveSettings').onclick = ()=> {
-      const key = $('#apiKey').value.trim();
-      const model = $('#model').value;
-      const sys = $('#systemPrompt').value.trim();
-      const defSym = ($('#defaultSymbol').value.trim().toUpperCase() || 'BTCUSDT');
-      const workerUrl = $('#workerUrl').value.trim();
-      if (key) localStorage.setItem('cg_app_key', key);
-      if (workerUrl) localStorage.setItem('cg_worker_url', workerUrl);
-      localStorage.setItem('cg_model', model);
-      localStorage.setItem('cg_sys', sys);
-      state.key = key; state.model = model; state.systemPrompt = sys; state.workerUrl = workerUrl || state.workerUrl;
-      $('#symbol').value = defSym; state.symbol = defSym;
-      if (settingsModalEl.close) settingsModalEl.close(); else settingsModalEl.removeAttribute('open');
-      toast('Ayarlar kaydedildi');
-      reloadAll();
-    };
-
-    $('#symbol').addEventListener('change', async (e)=>{ state.symbol = e.target.value.toUpperCase(); await reloadAll(); });
-    $('#interval').addEventListener('change', async (e)=>{ state.interval = e.target.value; await reloadAll(); });
-    $$('.quick').forEach(b=> b.onclick = async ()=>{ const s = b.getAttribute('data-s'); $('#symbol').value = s; state.symbol = s; await reloadAll(); });
+    $('#symbol').addEventListener('change',async e=>{ state.symbol=e.target.value.toUpperCase(); await reloadAll(); if(tvOn) loadTradingView('BINANCE:'+state.symbol); });
+    $('#interval').addEventListener('change',async e=>{ state.interval=e.target.value; await reloadAll(); if(tvOn) loadTradingView('BINANCE:'+state.symbol); });
+    $$('.quick').forEach(b=> b.onclick=async ()=>{ const s=b.getAttribute('data-s'); $('#symbol').value=s; state.symbol=s; await reloadAll(); if(tvOn) loadTradingView('BINANCE:'+state.symbol); });
 
     (async function boot(){
-      initCharts();
-      // preload saved settings
-      if (state.key) $('#apiKey').value = state.key;
-      if (state.workerUrl) $('#workerUrl').value = state.workerUrl;
-      if (state.model) $('#model').value = state.model;
-      if (!state.systemPrompt) state.systemPrompt = $('#systemPrompt').value; else $('#systemPrompt').value = state.systemPrompt;
-      const savedSym = localStorage.getItem('cg_defsym'); if (savedSym) { state.symbol = savedSym; $('#symbol').value = savedSym; }
-      await reloadAll();
-      addMsg('assistant', 'Hazırım! Sembol ve zamanı seç, canlı grafiği başlat. Analizleri otomatik yazdırabilir veya benimle konuşarak net plan isteyebilirsin.');
+      try{
+        initCharts();
+        if(state.key) $('#apiKey').value=state.key;
+        if(state.workerUrl) $('#workerUrl').value=state.workerUrl;
+        if(state.model) $('#model').value=state.model;
+        if(!state.systemPrompt) state.systemPrompt=$('#systemPrompt').value; else $('#systemPrompt').value=state.systemPrompt;
+        const savedSym=localStorage.getItem('cg_defsym'); if(savedSym){ state.symbol=savedSym; $('#symbol').value=savedSym; }
+        await reloadAll();
+        addMsg('assistant','Hazirim! Canliyi baslat, ister otomatik analiz yazdır ister gerçek zamanli konuş.');
+      }catch(e){ console.error('Boot error:',e); toast('Yukleme hatasi: '+(e&&e.message||e)); }
     })();
   </script>
 </body>
